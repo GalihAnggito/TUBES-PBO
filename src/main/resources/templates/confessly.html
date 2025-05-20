@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confessly - Share Your Thoughts Anonymously</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #7158e2;
+            --secondary-color: #3ae374;
+            --dark-color: #3d3d3d;
+            --light-color: #f7f7f7;
+            --danger-color: #ff6b6b;
+            --success-color: #1dd1a1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .logo span {
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, var(--primary-color), #8e44ad);
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Menfess Posts */
+        .menfess-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .menfess-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menfess-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-item {
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #f0f2f5;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+
+        .filter-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Individual Menfess Post */
+        .menfess-list {
+            padding: 1rem;
+        }
+
+        .menfess-post {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .post-content {
+            margin-bottom: 1rem;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .post-action:hover {
+            color: var(--primary-color);
+        }
+
+        .post-action i {
+            font-size: 1.1rem;
+        }
+
+        /* Comments */
+        .comments-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .comment {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .comment-user {
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .comment-text {
+            color: #333;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .comment-form {
+            display: flex;
+            margin-top: 1rem;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .comment-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .comment-submit:hover {
+            background-color: #5e48c8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .sidebar-content {
+            padding: 1rem;
+        }
+
+        /* New Menfess Form */
+        .new-menfess-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group .help-text {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .anonymous-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Rules Section */
+        .rules-list {
+            list-style-type: none;
+        }
+
+        .rules-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .rules-list li:last-child {
+            border-bottom: none;
+        }
+
+        .rules-list i {
+            color: var(--primary-color);
+            margin-top: 3px;
+        }
+
+        /* Trending Topics */
+        .trending-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic-tag {
+            padding: 5px 10px;
+            background-color: #f0f2f5;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .topic-tag:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            margin-top: 2rem;
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalopen 0.4s;
+        }
+
+        @keyframes modalopen {
+            from {
+                opacity: 0;
+                transform: translateY(-60px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-links {
+                margin: 10px 0;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .filters {
+                display: none;
+            }
+            
+            .post-actions {
+                flex-wrap: wrap;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">Confess<span>ly</span></div>
+            <div class="auth-buttons">
+                <button class="btn btn-secondary" id="login-btn">Login</button>
+                <button class="btn btn-primary" id="signup-btn">Sign Up</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Share Your Thoughts Anonymously</h1>
+            <p>Express yourself freely without revealing your identity. Connect, share, and engage with the community.</p>
+            <button class="btn btn-primary" id="create-menfess-btn">Create Menfess</button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <!-- Menfess Posts -->
+        <div class="menfess-container">
+            <div class="menfess-header">
+                <h2>Latest Menfess</h2>
+                <div class="filters">
+                    <div class="filter-item active">All</div>
+                    <div class="filter-item">Popular</div>
+                    <div class="filter-item">My Menfess</div>
+                </div>
+            </div>
+            <div class="menfess-list">
+                <!-- Menfess Post 1 -->
+                <div class="menfess-post">
+                    <div class="post-header">
+                        <span class="post-id">#M001</span>
+                        <span class="post-time">2 hours ago</span>
+                    </div>
+                    <div class="post-content">
+                        <p>Halo guys, ada yang punya rekomendasi tempat nongkrong yang asik di Jakarta? Yang cocok buat kerja sambil ngopi gitu. Thanks before!</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="far fa-heart"></i>
+                            <span>24 Likes</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-comment"></i>
+                            <span>8 Comments</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-share-square"></i>
+                            <span>Share</span>
+                        </div>
+                    </div>
+                    <div class="comments-section">
+                        <div class="comment">
+                            <span class="comment-user">@user123:</span>
+                            <span class="comment-text">Coba ke Tuku Coffee di Cipete, enak dan cozy banget suasananya!</span>
+                            <div class="comment-time">1 hour ago</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-user">@coffeeaddict:</span>
+                            <span class="comment-text">Anomali Coffee juga recommended, wifi kenceng dan banyak stop kontak.</span>
+                            <div class="comment-time">30 minutes ago</div>
+                        </div>
+                        <form class="comment-form">
+                            <input type="text" class="comment-input" placeholder="Write a comment...">
+                            <button type="submit" class="comment-submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Menfess Post 2 -->
+                <div class="menfess-post">
+                    <div class="post-header">
+                        <span class="post-id">#M002</span>
+                        <span class="post-time">5 hours ago</span>
+                    </div>
+                    <div class="post-content">
+                        <p>Guys, ada yang tau cara mengatasi overthinking gak? Belakangan ini aku sering banget mikirin hal-hal kecil sampai gak bisa tidur :(</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="far fa-heart"></i>
+                            <span>42 Likes</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-comment"></i>
+                            <span>15 Comments</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-share-square"></i>
+                            <span>Share</span>
+                        </div>
+                    </div>
+                    <div class="comments-section">
+                        <div class="comment">
+                            <span class="comment-user">@mindfulness:</span>
+                            <span class="comment-text">Coba meditasi 10 menit setiap pagi, helped me a lot!</span>
+                            <div class="comment-time">4 hours ago</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-user">@healingjourney:</span>
+                            <span class="comment-text">Journaling juga membantu untuk mengeluarkan pikiran yang mengganggu. Semangat ya!</span>
+                            <div class="comment-time">2 hours ago</div>
+                        </div>
+                        <form class="comment-form">
+                            <input type="text" class="comment-input" placeholder="Write a comment...">
+                            <button type="submit" class="comment-submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Menfess Post 3 -->
+                <div class="menfess-post">
+                    <div class="post-header">
+                        <span class="post-id">#M003</span>
+                        <span class="post-time">Yesterday</span>
+                    </div>
+                    <div class="post-content">
+                        <p>Hari ini aku akhirnya berani confess ke crush yang aku sukai sejak semester 1, dan ternyata dia juga suka sama aku! 🥰 Doain ya guys hubungan kita lancar!</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action">
+                            <i class="far fa-heart"></i>
+                            <span>128 Likes</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-comment"></i>
+                            <span>32 Comments</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-share-square"></i>
+                            <span>Share</span>
+                        </div>
+                    </div>
+                    <div class="comments-section">
+                        <div class="comment">
+                            <span class="comment-user">@romanceexpert:</span>
+                            <span class="comment-text">Selamat yaa! Happy for you 💖</span>
+                            <div class="comment-time">20 hours ago</div>
+                        </div>
+                        <div class="comment">
+                            <span class="comment-user">@singleforever:</span>
+                            <span class="comment-text">Kok bisa ya... *nangis di pojokan*</span>
+                            <div class="comment-time">18 hours ago</div>
+                        </div>
+                        <form class="comment-form">
+                            <input type="text" class="comment-input" placeholder="Write a comment...">
+                            <button type="submit" class="comment-submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Create New Menfess Card -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    Create New Menfess
+                </div>
+                <div class="sidebar-content">
+                    <form class="new-menfess-form">
+                        <div class="form-group">
+                            <label for="menfess-content">Your Message:</label>
+                            <textarea class="form-control" id="menfess-content" placeholder="What's on your mind?"></textarea>
+                            <div class="help-text">Max 280 characters</div>
+                        </div>
+                        <div class="form-group anonymous-toggle">
+                            <span>Post Anonymously</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Menfess</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Rules Card -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    Menfess Rules
+                </div>
+                <div class="sidebar-content">
+                    <ul class="rules-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>Keep your messages respectful and kind</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>No hate speech, bullying, or harassment</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>No spamming or excessive posting</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>No sharing of personal information</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>Violations may result in account suspension</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Trending Topics Card -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    Trending Topics
+                </div>
+                <div class="sidebar-content">
+                    <div class="trending-topics">
+                        <div class="topic-tag">#campuslife</div>
+                        <div class="topic-tag">#relationship</div>
+                        <div class="topic-tag">#mentalhealth</div>
+                        <div class="topic-tag">#career</div>
+                        <div class="topic-tag">#foodie</div>
+                        <div class="topic-tag">#jakarta</div>
+                        <div class="topic-tag">#confessions</div>
+                        <div class="topic-tag">#studytips</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About Confessly</h3>
+                    <p>Confessly is a platform for sharing thoughts anonymously, connecting with others, and engaging in meaningful conversations.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Trending</a></li>
+                        <li><a href="#">Rules</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="mailto:info@confessly.id">info@confessly.id</a></li>
+                        <li><a href="tel:+6281234567890">+62 812-3456-7890</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Confessly. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Login</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Sign Up</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+<script>
+    // DOM Elements
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const loginModal = document.getElementById('login-modal');
+    const signupModal = document.getElementById('signup-modal');
+    const closeModalBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
+    const createMenfessBtn = document.getElementById('create-menfess-btn');
+    const newMenfessForm = document.querySelector('.new-menfess-form');
+    const menfessList = document.querySelector('.menfess-list');
+    const commentForms = document.querySelectorAll('.comment-form');
+
+    // Modal Functions
+    function openModal(modal) {
+        modal.style.display = 'block';
+    }
+
+    function closeModal(modal) {
+        modal.style.display = 'none';
+    }
+
+    // Event Listeners
+    loginBtn.addEventListener('click', () => openModal(loginModal));
+    signupBtn.addEventListener('click', () => openModal(signupModal));
+    createMenfessBtn.addEventListener('click', () => {
+        document.querySelector('.new-menfess-form').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    closeModalBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            closeModal(loginModal);
+            closeModal(signupModal);
+        });
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) closeModal(loginModal);
+        if (e.target === signupModal) closeModal(signupModal);
+    });
+
+    // API Functions
+    async function fetchMenfess() {
+        try {
+            const response = await fetch('/api/menfess');
+            const data = await response.json();
+            updateMenfessList(data);
+        } catch (error) {
+            console.error('Error fetching menfess:', error);
+        }
+    }
+
+    async function createMenfess(content) {
+        try {
+            const response = await fetch('/api/menfess', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'anonymous',
+                    content: content
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Refresh the menfess list
+                await fetchMenfess();
+                // Clear the form
+                document.getElementById('menfess-content').value = '';
+                // Show success message
+                alert('Menfess posted successfully!');
+            } else {
+                alert('Failed to post menfess: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error creating menfess:', error);
+            alert('Error creating menfess. Please try again.');
+        }
+    }
+
+    async function likeMenfess(id) {
+        try {
+            const response = await fetch(`/api/menfess/${id}/like`, {
+                method: 'POST'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                updateLikeCount(id, data.likes);
+            }
+        } catch (error) {
+            console.error('Error liking menfess:', error);
+        }
+    }
+
+    async function addComment(menfessId, content) {
+        try {
+            const response = await fetch(`/api/menfess/${menfessId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'anonymous',
+                    content: content
+                })
+            });
+            if (response.ok) {
+                fetchMenfess();
+            }
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    }
+
+    // UI Update Functions
+    function updateMenfessList(menfess) {
+        if (!Array.isArray(menfess)) {
+            console.error('Expected array of menfess, got:', menfess);
+            return;
+        }
+        
+        menfessList.innerHTML = menfess.map(m => `
+            <div class="menfess-post" data-menfess-id="${m.id}">
+                <div class="post-header">
+                    <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                    <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
+                </div>
+                <div class="post-content">
+                    <p>${m.isi || m.content}</p>
+                </div>
+                <div class="post-actions">
+                    <div class="post-action" onclick="likeMenfess(${m.id})">
+                        <i class="far fa-heart"></i>
+                        <span>${m.likes || 0} Likes</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="far fa-comment"></i>
+                        <span>${(m.komentarList || []).length} Comments</span>
+                    </div>
+                    <div class="post-action">
+                        <i class="far fa-share-square"></i>
+                        <span>Share</span>
+                    </div>
+                </div>
+                <div class="comments-section">
+                    ${(m.komentarList || []).map(c => `
+                        <div class="comment">
+                            <span class="comment-user">@${c.pengirim?.username || 'anonymous'}:</span>
+                            <span class="comment-text">${c.isi || c.content}</span>
+                            <div class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</div>
+                        </div>
+                    `).join('')}
+                    <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                        <input type="text" class="comment-input" placeholder="Write a comment...">
+                        <button type="submit" class="comment-submit">Send</button>
+                    </form>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateLikeCount(id, likes) {
+        const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
+        if (likeElement) {
+            likeElement.textContent = `${likes} Likes`;
+        }
+    }
+
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (minutes < 60) return `${minutes} minutes ago`;
+        if (hours < 24) return `${hours} hours ago`;
+        return `${days} days ago`;
+    }
+
+    // Form Handlers
+    newMenfessForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = document.getElementById('menfess-content').value;
+        if (content.trim()) {
+            await createMenfess(content);
+        }
+    });
+
+    function handleCommentSubmit(event, menfessId) {
+        event.preventDefault();
+        const form = event.target;
+        const input = form.querySelector('.comment-input');
+        const content = input.value;
+        if (content.trim()) {
+            addComment(menfessId, content);
+            input.value = '';
+        }
+    }
+
+    // Initialize
+    fetchMenfess();
+</script>
+</html> 

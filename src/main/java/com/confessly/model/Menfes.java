@@ -2,17 +2,20 @@ package com.confessly.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 public class Menfes extends Postingan {
     private int likes;
     private User pengirim;
     private List<Komentar> komentarList;
+    private Date timestamp;
 
     public Menfes(int id, String isi, User pengirim) {
         super(id, isi);
         this.likes = 0;
         this.pengirim = pengirim;
         this.komentarList = new ArrayList<>();
+        this.timestamp = new Date();
     }
 
     public int getLikes() {
@@ -25,6 +28,10 @@ public class Menfes extends Postingan {
 
     public List<Komentar> getKomentarList() {
         return komentarList;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
     }
 
     public void setLikes(int likes) {

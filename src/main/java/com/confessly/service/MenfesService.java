@@ -3,9 +3,11 @@ package com.confessly.service;
 import com.confessly.model.Menfes;
 import com.confessly.model.User;
 import com.confessly.model.Komentar;
+import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class MenfesService {
     private List<Menfes> menfessList;
     private int nextId;
@@ -54,6 +56,8 @@ public class MenfesService {
     }
 
     public List<Menfes> lihatMenfesTerbaru() {
-        return new ArrayList<>(menfessList);
+        List<Menfes> sortedList = new ArrayList<>(menfessList);
+        sortedList.sort((m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));
+        return sortedList;
     }
 } 
