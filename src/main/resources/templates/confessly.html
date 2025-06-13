@@ -985,14 +985,9 @@
                 await fetchMenfess();
                 // Clear the form
                 document.getElementById('menfess-content').value = '';
-                // Show success message
-                alert('Menfess posted successfully!');
-            } else {
-                alert('Failed to post menfess: ' + data.message);
             }
         } catch (error) {
             console.error('Error creating menfess:', error);
-            alert('Error creating menfess. Please try again.');
         }
     }
 
@@ -1003,7 +998,17 @@
             });
             if (response.ok) {
                 const data = await response.json();
-                updateLikeCount(id, data.likes);
+                // Update the like count immediately
+                const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
+                if (likeElement) {
+                    likeElement.textContent = `${data} Likes`;
+                }
+                // Also update the heart icon to filled state
+                const heartIcon = document.querySelector(`[data-menfess-id="${id}"] .post-action i`);
+                if (heartIcon) {
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                }
             }
         } catch (error) {
             console.error('Error liking menfess:', error);
