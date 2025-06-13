@@ -699,9 +699,6 @@
                     </ul>
                 </div>
             </div>
-<<<<<<< HEAD
-=======
-
             <!-- Trending Topics Card -->
             <div class="sidebar-card">
                 <div class="sidebar-header">
@@ -713,7 +710,6 @@
                     </div>
                 </div>
             </div>
->>>>>>> 2659f69ec09b32b514009abf7840151faced8b50
         </div>
     </div>
 
@@ -722,8 +718,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>About Confessly</h3>
-                    <p>Confessly is a platform for sharing thoughts anonymously, connecting with others, and engaging in meaningful conversations.</p>
+                    <h3>Follow Us!</h3>
                     <div class="social-links">
                         <a href="https://www.instagram.com/confess_ly" target="_blank"><i class="fab fa-instagram"></i></a>
                         <a href="http://www.tiktok.com/@confess_ly" target="_blank"><i class="fab fa-tiktok"></i></a>
@@ -733,9 +728,9 @@
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="#">Home</a></li>
-                        <li><a href="#">Rules</a></li>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#rules">Rules</a></li>
+                        <li><a href="#about-confessly">About Confessly</a></li>
+                        <li><a href="#privacy-policy">Privacy Policy</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -805,6 +800,99 @@
                     <button type="submit" class="btn btn-primary">Sign Up</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Menfess Rules</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <ul class="rules-list">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>Keep your messages respectful and kind</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>No hate speech, bullying, or harassment</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>No spamming or excessive posting</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>No sharing of personal information</div>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <div>Violations may result in account suspension</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Modal -->
+    <div id="about-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">About Confessly</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 15px;">Welcome to Confessly</h3>
+                    <p style="line-height: 1.6; margin-bottom: 15px;">
+                        Confessly is a platform designed to provide a safe and anonymous space for people to share their thoughts, feelings, and experiences. Our mission is to foster meaningful connections and open dialogue while maintaining user privacy and security.
+                    </p>
+                    <p style="line-height: 1.6; margin-bottom: 15px;">
+                        Founded in 2025, Confessly has grown into a community where people can express themselves freely without fear of judgment. We believe in the power of anonymous sharing to create understanding and empathy among our users.
+                    </p>
+                    <p style="line-height: 1.6;">
+                        Our team is dedicated to maintaining a positive and supportive environment for all users. We continuously work to improve our platform and ensure the best experience for our community.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Privacy Policy</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <h3>1. Information We Collect</h3>
+                <p>We collect information that you provide directly to us, including when you create an account, post content, or communicate with other users.</p>
+                
+                <h3>2. How We Use Your Information</h3>
+                <p>We use the information we collect to provide, maintain, and improve our services, to develop new features, and to protect Confessly and our users.</p>
+                
+                <h3>3. Information Sharing</h3>
+                <p>We do not share your personal information with third parties except as described in this privacy policy.</p>
+                
+                <h3>4. Data Security</h3>
+                <p>We take reasonable measures to help protect your personal information from loss, theft, misuse, unauthorized access, disclosure, alteration, and destruction.</p>
+                
+                <h3>5. Your Rights</h3>
+                <p>You have the right to access, correct, or delete your personal information. You can also object to our processing of your personal information.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
         </div>
     </div>
 </body>
@@ -1076,5 +1164,45 @@
             }
         });
     }
+
+    // Additional Modal Elements
+    const rulesModal = document.getElementById('rules-modal');
+    const aboutModal = document.getElementById('about-modal');
+    const privacyModal = document.getElementById('privacy-modal');
+
+    // Update footer links to open modals
+    document.querySelector('a[href="#rules"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(rulesModal);
+    });
+
+    document.querySelector('a[href="#about-confessly"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(aboutModal);
+    });
+
+    document.querySelector('a[href="#privacy-policy"]').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(privacyModal);
+    });
+
+    // Update close modal functionality to include new modals
+    closeModalBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            closeModal(loginModal);
+            closeModal(signupModal);
+            closeModal(rulesModal);
+            closeModal(aboutModal);
+            closeModal(privacyModal);
+        });
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) closeModal(loginModal);
+        if (e.target === signupModal) closeModal(signupModal);
+        if (e.target === rulesModal) closeModal(rulesModal);
+        if (e.target === aboutModal) closeModal(aboutModal);
+        if (e.target === privacyModal) closeModal(privacyModal);
+    });
 </script>
 </html> 
