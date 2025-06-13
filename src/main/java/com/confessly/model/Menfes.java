@@ -50,4 +50,15 @@ public class Menfes extends Postingan {
         this.likes++;
         return this.likes;
     }
+
+    public List<String> getHashtags() {
+        List<String> hashtags = new ArrayList<>();
+        String[] words = this.getIsi().split("\\s+");
+        for (String word : words) {
+            if (word.startsWith("#")) {
+                hashtags.add(word.toLowerCase());
+            }
+        }
+        return hashtags;
+    }
 } 

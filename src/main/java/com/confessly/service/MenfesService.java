@@ -6,6 +6,9 @@ import com.confessly.model.Komentar;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class MenfesService {
@@ -70,5 +73,23 @@ public class MenfesService {
             return Integer.compare(score2, score1); // Sort in descending order
         });
         return sortedList;
+    }
+
+    public List<String> getTrendingHashtags() {
+        Map<String, Integer> hashtagScores = new HashMap<>();
+        
+        // Calculate score for each hashtag based on likes
+        for (Menfes menfes : menfessList) {
+            for (String hashtag : menfes.getHashtags()) {
+                hashtagScores.merge(hashtag, menfes.getLikes(), Integer::sum);
+            }
+        }
+        
+        // Sort hashtags by score
+        return hashtagScores.entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .limit(8) // Get top 8 trending hashtags
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
     }
 } 

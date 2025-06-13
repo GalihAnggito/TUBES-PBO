@@ -59,6 +59,12 @@ public class MenfessController {
         boolean success = menfesService.deleteMenfes(id, user);
         return ResponseEntity.ok(success);
     }
+
+    @GetMapping("/trending")
+    public ResponseEntity<List<String>> getTrendingHashtags() {
+        List<String> trendingHashtags = menfesService.getTrendingHashtags();
+        return ResponseEntity.ok(trendingHashtags);
+    }
 }
 
 class MenfesRequest {
