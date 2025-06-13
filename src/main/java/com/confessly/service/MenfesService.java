@@ -60,4 +60,15 @@ public class MenfesService {
         sortedList.sort((m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));
         return sortedList;
     }
+
+    public List<Menfes> lihatMenfesPopuler() {
+        List<Menfes> sortedList = new ArrayList<>(menfessList);
+        sortedList.sort((m1, m2) -> {
+            // Calculate popularity score based on likes and comments
+            int score1 = m1.getLikes() + m1.getKomentarList().size();
+            int score2 = m2.getLikes() + m2.getKomentarList().size();
+            return Integer.compare(score2, score1); // Sort in descending order
+        });
+        return sortedList;
+    }
 } 
