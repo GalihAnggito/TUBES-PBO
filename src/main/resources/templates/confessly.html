@@ -831,10 +831,8 @@
                     <h3>About Confessly</h3>
                     <p>Confessly is a platform for sharing thoughts anonymously, connecting with others, and engaging in meaningful conversations.</p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.instagram.com/confess_ly" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="http://www.tiktok.com/@confess_ly" target="_blank"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
                 <div class="footer-section">
@@ -927,6 +925,7 @@
     const newMenfessForm = document.querySelector('.new-menfess-form');
     const menfessList = document.querySelector('.menfess-list');
     const commentForms = document.querySelectorAll('.comment-form');
+    const filterItems = document.querySelectorAll('.filter-item');
 
     // Modal Functions
     function openModal(modal) {
@@ -957,9 +956,10 @@
     });
 
     // API Functions
-    async function fetchMenfess() {
+    async function fetchMenfess(filter = 'all') {
         try {
-            const response = await fetch('/api/menfess');
+            const endpoint = filter === 'popular' ? '/api/menfess/popular' : '/api/menfess';
+            const response = await fetch(endpoint);
             const data = await response.json();
             updateMenfessList(data);
         } catch (error) {
@@ -1118,7 +1118,64 @@
         }
     }
 
+    // Filter Functions
+    function setupFilters() {
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class from all filters
+                filterItems.forEach(fi => fi.classList.remove('active'));
+                // Add active class to clicked filter
+                item.classList.add('active');
+                
+                // Fetch menfess based on filter
+                const filter = item.textContent.toLowerCase();
+                fetchMenfess(filter);
+            });
+        });
+    }
+
     // Initialize
-    fetchMenfess();
+    document.addEventListener('DOMContentLoaded', () => {
+        setupFilters();
+        fetchMenfess();
+        fetchTrendingHashtags();
+    });
+
+    // Fetch trending hashtags
+    async function fetchTrendingHashtags() {
+        try {
+            const response = await fetch('/api/menfess/trending');
+            const hashtags = await response.json();
+            updateTrendingTopics(hashtags);
+        } catch (error) {
+            console.error('Error fetching trending hashtags:', error);
+        }
+    }
+
+    // Update trending topics in the UI
+    function updateTrendingTopics(hashtags) {
+        const trendingTopicsContainer = document.querySelector('.trending-topics');
+        if (hashtags.length === 0) {
+            trendingTopicsContainer.innerHTML = '<div class="no-trends">No trending topics yet</div>';
+            return;
+        }
+        
+        trendingTopicsContainer.innerHTML = hashtags.map(hashtag => 
+            `<div class="topic-tag" onclick="filterByHashtag('${hashtag}')">${hashtag}</div>`
+        ).join('');
+    }
+
+    // Filter posts by hashtag
+    function filterByHashtag(hashtag) {
+        const posts = document.querySelectorAll('.menfess-post');
+        posts.forEach(post => {
+            const content = post.querySelector('.post-content').textContent.toLowerCase();
+            if (content.includes(hashtag.toLowerCase())) {
+                post.style.display = 'block';
+            } else {
+                post.style.display = 'none';
+            }
+        });
+    }
 </script>
 </html> 

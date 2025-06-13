@@ -22,6 +22,11 @@ public class MenfessController {
         return menfesService.lihatMenfesTerbaru();
     }
 
+    @GetMapping("/popular")
+    public List<Menfes> getPopularMenfess() {
+        return menfesService.lihatMenfesPopuler();
+    }
+
     @PostMapping
     public ResponseEntity<Menfes> createMenfess(@RequestBody MenfesRequest request) {
         User user = new User(1, request.getUsername(), "", "user"); // In real app, get from session
@@ -53,6 +58,12 @@ public class MenfessController {
         User user = new User(1, "admin", "", "admin"); // In real app, get from session
         boolean success = menfesService.deleteMenfes(id, user);
         return ResponseEntity.ok(success);
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<List<String>> getTrendingHashtags() {
+        List<String> trendingHashtags = menfesService.getTrendingHashtags();
+        return ResponseEntity.ok(trendingHashtags);
     }
 }
 
