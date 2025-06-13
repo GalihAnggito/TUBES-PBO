@@ -22,6 +22,11 @@ public class MenfessController {
         return menfesService.lihatMenfesTerbaru();
     }
 
+    @GetMapping("/popular")
+    public List<Menfes> getPopularMenfess() {
+        return menfesService.lihatMenfesPopuler();
+    }
+
     @PostMapping
     public ResponseEntity<Menfes> createMenfess(@RequestBody MenfesRequest request) {
         User user = new User(1, request.getUsername(), "", "user"); // In real app, get from session

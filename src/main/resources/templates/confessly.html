@@ -947,6 +947,7 @@
     const newMenfessForm = document.querySelector('.new-menfess-form');
     const menfessList = document.querySelector('.menfess-list');
     const commentForms = document.querySelectorAll('.comment-form');
+    const filterItems = document.querySelectorAll('.filter-item');
 
     // Modal Functions
     function openModal(modal) {
@@ -977,9 +978,10 @@
     });
 
     // API Functions
-    async function fetchMenfess() {
+    async function fetchMenfess(filter = 'all') {
         try {
-            const response = await fetch('/api/menfess');
+            const endpoint = filter === 'popular' ? '/api/menfess/popular' : '/api/menfess';
+            const response = await fetch(endpoint);
             const data = await response.json();
             updateMenfessList(data);
         } catch (error) {
@@ -1138,7 +1140,26 @@
         }
     }
 
+    // Filter Functions
+    function setupFilters() {
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class from all filters
+                filterItems.forEach(fi => fi.classList.remove('active'));
+                // Add active class to clicked filter
+                item.classList.add('active');
+                
+                // Fetch menfess based on filter
+                const filter = item.textContent.toLowerCase();
+                fetchMenfess(filter);
+            });
+        });
+    }
+
     // Initialize
-    fetchMenfess();
+    document.addEventListener('DOMContentLoaded', () => {
+        setupFilters();
+        fetchMenfess();
+    });
 </script>
 </html> 
