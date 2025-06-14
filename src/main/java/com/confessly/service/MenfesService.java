@@ -47,6 +47,19 @@ public class MenfesService {
         return false;
     }
 
+    public Menfes editMenfes(int id, String newContent, User user) {
+        for (Menfes menfes : menfessList) {
+            if (menfes.getID() == id) {
+                if (menfes.getPengirim().getId() == user.getId() || "admin".equals(user.getRole())) {
+                    menfes.setIsi(newContent);
+                    return menfes;
+                }
+                throw new IllegalStateException("You don't have permission to edit this menfess");
+            }
+        }
+        throw new IllegalStateException("Menfess not found");
+    }
+
     public int likeMenfes(int id, int userId) {
         for (Menfes menfes : menfessList) {
             if (menfes.getID() == id) {

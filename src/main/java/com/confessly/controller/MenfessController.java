@@ -108,6 +108,27 @@ public class MenfessController {
         return ResponseEntity.ok(success);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editMenfess(@PathVariable int id, @RequestBody MenfesRequest request) {
+        // Verify user is logged in
+        User user = authService.login(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Please login first to edit a menfess post");
+        }
+
+        // Verify user is still logged in
+        if (!authService.isUserLoggedIn(user)) {
+            return ResponseEntity.badRequest().body("Your session has expired. Please login again.");
+        }
+
+        try {
+            Menfes menfes = menfesService.editMenfes(id, request.getContent(), user);
+            return ResponseEntity.ok(menfes);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/trending")
     public ResponseEntity<List<String>> getTrendingHashtags() {
         List<String> trendingHashtags = menfesService.getTrendingHashtags();
