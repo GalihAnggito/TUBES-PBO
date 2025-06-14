@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -15,29 +18,43 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        User newUser = authService.register(request.getUsername(), request.getPassword());
-        if (newUser == null) {
-            return ResponseEntity.badRequest().body("Username already exists");
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty() ||
+            request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Username and password are required");
         }
-        return ResponseEntity.ok(newUser);
+
+        User user = authService.register(request.getUsername(), request.getPassword());
+        if (user != null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("profilePicture", user.getProfilePicture());
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body("Username already exists");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         User user = authService.login(request.getUsername(), request.getPassword());
-        if (user == null) {
-            return ResponseEntity.badRequest().body("Invalid username or password");
+        if (user != null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("profilePicture", user.getProfilePicture());
+            return ResponseEntity.ok(response);
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.badRequest().body("Invalid username or password");
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody User user) {
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
+        User user = new User(0, request.getUsername(), "", "user");
         boolean success = authService.logout(user);
-        if (!success) {
-            return ResponseEntity.badRequest().body("Logout failed");
+        if (success) {
+            return ResponseEntity.ok().body("Logged out successfully");
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.badRequest().body("Logout failed");
     }
 }
 
@@ -80,5 +97,17 @@ class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+}
+
+class LogoutRequest {
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 } 

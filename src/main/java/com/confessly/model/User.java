@@ -5,12 +5,14 @@ public class User {
     private String username;
     private String password;
     private String role;
+    private String profilePicture;
 
     public User(int id, String username, String password, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.profilePicture = "default.png"; // Default profile picture
     }
 
     public int getId() {
@@ -43,5 +45,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 } 

@@ -61,22 +61,6 @@
             color: var(--secondary-color);
         }
 
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--secondary-color);
-        }
-
         .auth-buttons {
             display: flex;
             gap: 10px;
@@ -583,10 +567,6 @@
                 gap: 10px;
             }
             
-            .nav-links {
-                margin: 10px 0;
-            }
-            
             .hero h1 {
                 font-size: 2rem;
             }
@@ -640,16 +620,153 @@
         }
 
         .profile-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .profile-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-picture {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #666;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .username {
+            font-weight: 500;
+        }
+
+        .dropdown-arrow {
+            font-size: 0.8rem;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-dropdown-item {
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #fff;
-            color: #7158e2;
-            border-radius: 20px;
-            padding: 6px 16px;
-            box-shadow: 0 2px 8px rgba(113,88,226,0.08);
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .profile-dropdown-item:hover {
+            background-color: #f0f2f5;
+        }
+
+        .profile-dropdown-item i {
+            width: 20px;
+            color: var(--primary-color);
+        }
+
+        .profile-dropdown-divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 5px 0;
+        }
+
+        /* Alert Modal Styles */
+        .alert-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .alert-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .alert-message {
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+
+        .alert-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .alert-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             font-weight: 500;
-            margin-left: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .alert-btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .alert-btn-secondary {
+            background-color: #e0e0e0;
+            color: var(--dark-color);
+        }
+
+        .alert-btn:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -659,12 +776,27 @@
         <div class="container header-container">
             <div class="logo">Confess<span>ly</span></div>
             <div class="auth-buttons">
-                <button class="btn btn-secondary" id="login-btn">Login</button>
-                <button class="btn btn-primary" id="signup-btn">Sign Up</button>
+                <button class="btn btn-secondary" onclick="showModal('loginModal')">Login</button>
+                <button class="btn btn-primary" onclick="showModal('signupModal')">Sign Up</button>
             </div>
-            <div class="profile-menu" id="profileMenu" style="display:none;">
-                <span id="profileUsername"></span>
-                <button onclick="logout()" class="btn btn-secondary" style="margin-left:10px;">Logout</button>
+            <div class="profile-menu" style="display: none;">
+                <button class="profile-button" onclick="toggleProfileDropdown()">
+                    <div class="profile-info">
+                        <span id="username" class="username">Username</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="#" class="profile-dropdown-item" onclick="editUsername()">
+                        <i class="fas fa-user-edit"></i>
+                        Edit Username
+                    </a>
+                    <div class="profile-dropdown-divider"></div>
+                    <a href="#" class="profile-dropdown-item" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
             </div>
         </div>
     </header>
@@ -919,6 +1051,18 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Alert Modal -->
+    <div id="alertModal" class="alert-modal">
+        <div class="alert-content">
+            <div class="alert-title" id="alertTitle">Alert</div>
+            <div class="alert-message" id="alertMessage"></div>
+            <div class="alert-buttons">
+                <button class="alert-btn alert-btn-secondary" onclick="closeAlert()">Cancel</button>
+                <button class="alert-btn alert-btn-primary" id="alertConfirmBtn">OK</button>
             </div>
         </div>
     </div>
@@ -1242,7 +1386,7 @@
                     closeModal('loginModal');
                     // Enable menfess creation
                     document.getElementById('create-menfess-btn').disabled = false;
-                    showProfileMenu();
+                    updateProfileDisplay();
                 } else {
                     const error = await response.text();
                     errorElement.textContent = error;
@@ -1283,7 +1427,7 @@
                     closeModal('signupModal');
                     // Enable menfess creation
                     document.getElementById('create-menfess-btn').disabled = false;
-                    showProfileMenu();
+                    updateProfileDisplay();
                 } else {
                     const error = await response.text();
                     errorElement.textContent = error;
@@ -1364,31 +1508,106 @@
             container.innerHTML = hashtags.map(tag => `<span class="topic-tag">${tag}</span>`).join('');
         }
 
-        function showProfileMenu() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (currentUser) {
-                document.getElementById('profileMenu').style.display = 'flex';
-                document.getElementById('profileUsername').textContent = currentUser.username;
-                const authBtns = document.querySelector('.auth-buttons');
-                if (authBtns) authBtns.style.display = 'none';
+        function updateProfileDisplay() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const profileMenu = document.querySelector('.profile-menu');
+            const authButtons = document.querySelector('.auth-buttons');
+            
+            if (user) {
+                // Update username
+                document.getElementById('username').textContent = user.username;
+                
+                // Show profile menu, hide auth buttons
+                profileMenu.style.display = 'block';
+                authButtons.style.display = 'none';
             } else {
-                document.getElementById('profileMenu').style.display = 'none';
-                const authBtns = document.querySelector('.auth-buttons');
-                if (authBtns) authBtns.style.display = 'flex';
+                // Hide profile menu, show auth buttons
+                profileMenu.style.display = 'none';
+                authButtons.style.display = 'flex';
             }
+        }
+
+        function confirmLogout() {
+            showAlert(
+                'Confirm Logout',
+                'Are you sure you want to logout?',
+                () => logout()
+            );
         }
 
         function logout() {
             localStorage.removeItem('currentUser');
-            showProfileMenu();
+            updateProfileDisplay();
             location.reload();
         }
 
         window.onload = function() {
-            showProfileMenu();
+            updateProfileDisplay();
             loadTrendingTopics();
             showAllMenfess();
         };
+
+        function toggleProfileDropdown() {
+            const dropdown = document.querySelector('.profile-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(event) {
+            const profileMenu = document.querySelector('.profile-menu');
+            const dropdown = document.querySelector('.profile-dropdown');
+            if (!profileMenu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function editUsername() {
+            const newUsername = prompt('Enter new username:');
+            if (newUsername) {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                
+                fetch(`/api/profile/username?userId=${currentUser.id}&newUsername=${encodeURIComponent(newUsername)}`, {
+                    method: 'PUT'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Username update failed');
+                })
+                .then(updatedUser => {
+                    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                    document.getElementById('username').textContent = updatedUser.username;
+                    showAlert('Success', 'Username updated successfully!');
+                })
+                .catch(error => {
+                    showAlert('Error', error.message);
+                });
+            }
+        }
+
+        function showAlert(title, message, onConfirm) {
+            const modal = document.getElementById('alertModal');
+            const titleEl = document.getElementById('alertTitle');
+            const messageEl = document.getElementById('alertMessage');
+            const confirmBtn = document.getElementById('alertConfirmBtn');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            // Set up confirm button
+            confirmBtn.onclick = () => {
+                closeAlert();
+                if (onConfirm) onConfirm();
+            };
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeAlert() {
+            const modal = document.getElementById('alertModal');
+            modal.style.display = 'none';
+        }
     </script>
 </body>
 </html> 

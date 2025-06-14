@@ -51,4 +51,22 @@ public class LoginLogout {
     public boolean isUserLoggedIn(User user) {
         return user != null;
     }
+
+    public User getUserById(int userId) {
+        for (User user : users) {
+            if (user.getId() == userId) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public boolean isUsernameTaken(String username) {
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
 } 
