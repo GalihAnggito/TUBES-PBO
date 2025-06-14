@@ -55,13 +55,23 @@ public class MenfessController {
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<Integer> likeMenfess(@PathVariable int id, @RequestBody LikeRequest request) {
+    public ResponseEntity<?> likeMenfess(@PathVariable int id, @RequestBody LikeRequest request) {
         User user = authService.login(request.getUsername(), request.getPassword());
         if (user == null) {
-            return ResponseEntity.badRequest().body(0);
+            return ResponseEntity.badRequest().body("Please login first to like a menfess");
         }
-        int likes = menfesService.likeMenfes(id, user.getId());
-        return ResponseEntity.ok(likes);
+
+        // Verify user is still logged in
+        if (!authService.isUserLoggedIn(user)) {
+            return ResponseEntity.badRequest().body("Your session has expired. Please login again.");
+        }
+
+        try {
+            int likes = menfesService.likeMenfes(id, user.getId());
+            return ResponseEntity.ok(likes);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/{id}/comment")
