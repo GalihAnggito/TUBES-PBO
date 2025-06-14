@@ -113,6 +113,11 @@ public class MenfessController {
         List<String> trendingHashtags = menfesService.getTrendingHashtags();
         return ResponseEntity.ok(trendingHashtags);
     }
+
+    @GetMapping("/my")
+    public List<Menfes> getMyMenfess(@RequestParam String username) {
+        return menfesService.lihatMenfesSaya(username);
+    }
 }
 
 class MenfesRequest {

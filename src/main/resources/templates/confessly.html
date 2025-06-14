@@ -1076,6 +1076,9 @@
     </div>
 
     <script>
+        // Deklarasi currentFilter di atas
+        let currentFilter = 'all';
+
         // DOM Elements
         const loginBtn = document.getElementById('login-btn');
         const signupBtn = document.getElementById('signup-btn');
@@ -1098,17 +1101,19 @@
         }
 
         // Event Listeners
-        loginBtn.addEventListener('click', () => showModal('loginModal'));
-        signupBtn.addEventListener('click', () => showModal('signupModal'));
-        createMenfessBtn.addEventListener('click', () => {
-            document.querySelector('.new-menfess-form').scrollIntoView({ behavior: 'smooth' });
+        if (loginBtn) loginBtn.addEventListener('click', () => showModal('loginModal'));
+        if (signupBtn) signupBtn.addEventListener('click', () => showModal('signupModal'));
+        if (createMenfessBtn) createMenfessBtn.addEventListener('click', () => {
+            const form = document.querySelector('.new-menfess-form');
+            if (form) form.scrollIntoView({ behavior: 'smooth' });
         });
-
-        closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                closeModal('loginModal');
-                closeModal('signupModal');
-            });
+        if (closeModalBtns) closeModalBtns.forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    closeModal('loginModal');
+                    closeModal('signupModal');
+                });
+            }
         });
 
         window.onclick = function(event) {
@@ -1484,11 +1489,16 @@
         // Handle Signup
         async function handleSignup(event) {
             event.preventDefault();
-            const username = document.getElementById('signupUsername').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const errorElement = document.getElementById('signupError');
 
+            if (!username || !password) {
+                errorElement.textContent = 'Username and password are required';
+                errorElement.style.display = 'block';
+                return;
+            }
             if (password !== confirmPassword) {
                 errorElement.textContent = 'Passwords do not match';
                 errorElement.style.display = 'block';
@@ -1537,22 +1547,25 @@
             return true;
         }
 
-        let currentFilter = 'all';
-
         function setActiveFilter(filter) {
             document.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('filter-' + filter).classList.add('active');
+            const filterEl = document.getElementById('filter-' + filter);
+            if (filterEl) filterEl.classList.add('active');
             currentFilter = filter;
         }
 
         function showAllMenfess() {
             setActiveFilter('all');
-            loadMenfess('/api/menfess');
+            loadMenfess('/api/menfess', false);
         }
 
         function showPopularMenfess() {
             setActiveFilter('popular');
-            loadMenfess('/api/menfess/popular');
+            fetch('/api/menfess/popular?ts=' + Date.now(), { cache: 'reload' })
+                .then(res => res.json())
+                .then(data => {
+                    renderMenfessList(data); // Tidak ada sorting ulang di sini!
+                });
         }
 
         function showMyMenfess() {
@@ -1565,14 +1578,32 @@
             loadMenfess('/api/menfess/my?username=' + encodeURIComponent(currentUser.username));
         }
 
-        // Fungsi loadMenfess(url) harus menampilkan daftar menfess sesuai endpoint
-        async function loadMenfess(url = '/api/menfess') {
+        // Update the loadMenfess function to handle the popular filter
+        async function loadMenfess(url = '/api/menfess', debug = false) {
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, { cache: 'reload' });
                 if (!response.ok) {
                     throw new Error('Failed to load menfess');
                 }
-                const data = await response.json();
+                let data = await response.json();
+                // Fallback: Sorting di frontend jika filter populer
+                if (url.includes('/popular')) {
+                    data = data.sort((a, b) => {
+                        const scoreA = ((a.likes || 0) * 2) + ((a.komentarList && a.komentarList.length) || 0);
+                        const scoreB = ((b.likes || 0) * 2) + ((b.komentarList && b.komentarList.length) || 0);
+                        if (scoreB !== scoreA) return scoreB - scoreA;
+                        // Jika skor sama, urutkan berdasarkan timestamp terbaru
+                        return new Date(b.timestamp || b.createdAt) - new Date(a.timestamp || a.createdAt);
+                    });
+                }
+                if (debug) {
+                    console.log('[POPULAR DATA FROM BACKEND]', data.map(m => ({
+                        id: m.id,
+                        likes: m.likes,
+                        komentar: m.komentarList ? m.komentarList.length : 0,
+                        score: (m.likes * 2) + (m.komentarList ? m.komentarList.length : 0)
+                    })));
+                }
                 const list = document.querySelector('.menfess-list');
                 if (!list) return;
 
@@ -1727,6 +1758,49 @@
         function closeAlert() {
             const modal = document.getElementById('alertModal');
             modal.style.display = 'none';
+        }
+
+        // Fungsi untuk render daftar menfess
+        function renderMenfessList(data) {
+            const list = document.querySelector('.menfess-list');
+            if (!list) return;
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            list.innerHTML = data.map(m => `
+                <div class="menfess-post" data-menfess-id="${m.id}">
+                    <div class="post-header">
+                        <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                        <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
+                    </div>
+                    <div class="post-content">
+                        <p>${m.isi || m.content}</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action ${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
+                            <i class="${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'fas' : 'far'} fa-heart"></i>
+                            <span>${m.likes || 0} Likes</span>
+                        </div>
+                        <div class="post-action" onclick="toggleComments(${m.id})">
+                            <i class="far fa-comment"></i>
+                            <span>${(m.komentarList || []).length} Komentar</span>
+                        </div>
+                    </div>
+                    <div class="comments-section" style="display: none;">
+                        ${(m.komentarList || []).map(c => `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
+                                    <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
+                                </div>
+                                <div class="comment-text">${c.isi || c.content}</div>
+                            </div>
+                        `).join('')}
+                        <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                            <input type="text" class="comment-input" placeholder="Tulis komentar...">
+                            <button type="submit" class="comment-submit">Kirim</button>
+                        </form>
+                    </div>
+                </div>
+            `).join('');
         }
     </script>
 </body>
