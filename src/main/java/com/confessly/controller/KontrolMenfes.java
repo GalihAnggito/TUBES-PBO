@@ -21,8 +21,8 @@ public class KontrolMenfes {
         return service.deleteMenfes(id, user);
     }
 
-    public int likeMenfes(int id) {
-        return service.likeMenfes(id);
+    public int likeMenfes(int id, int userId) {
+        return service.likeMenfes(id, userId);
     }
 
     public boolean komenMenfes(int id, String isi, User user) {

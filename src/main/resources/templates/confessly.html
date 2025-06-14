@@ -834,7 +834,7 @@
                 <div class="sidebar-header">Create New Menfess</div>
                 <div class="sidebar-content">
                     <textarea id="menfessContent" placeholder="What's on your mind?"></textarea>
-                    <button id="createMenfessBtn" onclick="checkAuthBeforeMenfess() && createMenfess()">Post Menfess</button>
+                    <button id="createMenfessBtn" onclick="createMenfess()">Post Menfess</button>
                 </div>
             </div>
 
@@ -1124,6 +1124,11 @@
         async function createMenfess() {
             const content = document.getElementById('menfessContent').value;
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                showModal('loginModal');
+                return;
+            }
 
             try {
                 const response = await fetch('/api/menfess', {
@@ -1144,9 +1149,15 @@
                     loadMenfess();
                 } else {
                     const error = await response.text();
+                    if (error.includes("session has expired")) {
+                        // Clear invalid session
+                        localStorage.removeItem('currentUser');
+                        showModal('loginModal');
+                    }
                     alert(error);
                 }
             } catch (error) {
+                console.error('Error creating menfess:', error);
                 alert('An error occurred while creating the menfess post.');
             }
         }
@@ -1382,7 +1393,12 @@
 
                 if (response.ok) {
                     const user = await response.json();
-                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    // Store both user data and password
+                    const userData = {
+                        ...user,
+                        password: password // Store password for future requests
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
                     closeModal('loginModal');
                     // Enable menfess creation
                     document.getElementById('create-menfess-btn').disabled = false;
@@ -1423,7 +1439,12 @@
 
                 if (response.ok) {
                     const user = await response.json();
-                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    // Store both user data and password
+                    const userData = {
+                        ...user,
+                        password: password // Store password for future requests
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
                     closeModal('signupModal');
                     // Enable menfess creation
                     document.getElementById('create-menfess-btn').disabled = false;
