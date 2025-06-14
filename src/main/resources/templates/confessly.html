@@ -1575,7 +1575,7 @@
                 showModal('loginModal');
                 return;
             }
-            loadMenfess('/api/menfess/my?username=' + encodeURIComponent(currentUser.username), false);
+            loadMenfess('/api/menfess/my?username=' + encodeURIComponent(currentUser.username));
         }
 
         // Update the loadMenfess function to handle the popular filter

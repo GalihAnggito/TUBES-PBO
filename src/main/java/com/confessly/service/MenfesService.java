@@ -112,4 +112,16 @@ public class MenfesService {
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
     }
+
+    public List<Menfes> lihatMenfesSaya(String username) {
+        List<Menfes> result = new ArrayList<>();
+        for (Menfes m : menfessList) {
+            if (m.getPengirim() != null && m.getPengirim().getUsername().equals(username)) {
+                result.add(m);
+            }
+        }
+        // Urutkan dari terbaru
+        result.sort((m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));
+        return result;
+    }
 } 
