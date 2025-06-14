@@ -3,6 +3,8 @@ package com.confessly.service;
 import com.confessly.model.Menfes;
 import com.confessly.model.User;
 import com.confessly.model.Komentar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class MenfesService {
+    private static final Logger logger = LoggerFactory.getLogger(MenfesService.class);
     private List<Menfes> menfessList;
     private int nextId;
     private LoginLogout authService;
@@ -75,11 +78,20 @@ public class MenfesService {
     public List<Menfes> lihatMenfesPopuler() {
         List<Menfes> sortedList = new ArrayList<>(menfessList);
         sortedList.sort((m1, m2) -> {
-            // Calculate popularity score based on likes and comments
-            int score1 = m1.getLikes() + m1.getKomentarList().size();
-            int score2 = m2.getLikes() + m2.getKomentarList().size();
-            return Integer.compare(score2, score1); // Sort in descending order
+            int score1 = (m1.getLikes() * 2) + m1.getKomentarList().size();
+            int score2 = (m2.getLikes() * 2) + m2.getKomentarList().size();
+            int scoreComparison = Integer.compare(score2, score1); // descending
+            if (scoreComparison != 0) {
+                return scoreComparison;
+            }
+            // Jika skor sama, urutkan berdasarkan timestamp terbaru
+            return m2.getTimestamp().compareTo(m1.getTimestamp());
         });
+        // Logging urutan hasil sorting
+        logger.info("[POPULAR SORT] Urutan hasil sorting:");
+        for (Menfes m : sortedList) {
+            logger.info("ID: {} | Likes: {} | Komentar: {} | Score: {}", m.getID(), m.getLikes(), m.getKomentarList().size(), (m.getLikes()*2)+m.getKomentarList().size());
+        }
         return sortedList;
     }
 
