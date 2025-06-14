@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/menfess")
@@ -58,8 +60,12 @@ public class MenfessController {
     }
 
     @PostMapping("/{id}/comment")
-    public ResponseEntity<Boolean> addComment(@PathVariable int id, @RequestBody CommentRequest request) {
-        User user = new User(1, request.getUsername(), "", "user"); // In real app, get from session
+    public ResponseEntity<?> addComment(@PathVariable int id, @RequestBody CommentRequest request) {
+        User user = authService.login(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Please login first to comment");
+        }
+        
         Komentar komentar = new Komentar(
             (int) (Math.random() * 1000),
             request.getContent(),
@@ -67,12 +73,22 @@ public class MenfessController {
             null // Will be set by service
         );
         boolean success = menfesService.komenMenfes(id, komentar);
-        return ResponseEntity.ok(success);
+        if (success) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("comment", komentar);
+            response.put("user", Map.of(
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "profilePicture", user.getProfilePicture()
+            ));
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body("Failed to add comment");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteMenfess(@PathVariable int id) {
-        User user = new User(1, "admin", "", "admin"); // In real app, get from session
+    public ResponseEntity<Boolean> deleteMenfess(@PathVariable int id, @RequestBody User user) {
         boolean success = menfesService.deleteMenfes(id, user);
         return ResponseEntity.ok(success);
     }
@@ -117,6 +133,7 @@ class MenfesRequest {
 class CommentRequest {
     private String username;
     private String content;
+    private String password;
 
     public String getUsername() {
         return username;
@@ -132,6 +149,14 @@ class CommentRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
 
