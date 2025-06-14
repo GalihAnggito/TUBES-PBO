@@ -19,8 +19,8 @@ public class KelolaMenfes {
         return menfesService.deleteMenfes(id, user);
     }
 
-    public int likeMenfes(int id) {
-        return menfesService.likeMenfes(id);
+    public int likeMenfes(int id, int userId) {
+        return menfesService.likeMenfes(id, userId);
     }
 
     public boolean komenMenfes(int id, Komentar komentar) {

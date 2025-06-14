@@ -49,7 +49,13 @@ public class LoginLogout {
     }
 
     public boolean isUserLoggedIn(User user) {
-        return user != null;
+        if (user == null) return false;
+        for (User u : users) {
+            if (u.getId() == user.getId() && u.getUsername().equals(user.getUsername())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public User getUserById(int userId) {

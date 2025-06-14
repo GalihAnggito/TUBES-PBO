@@ -41,6 +41,11 @@ public class MenfessController {
             return ResponseEntity.badRequest().body("Please login first to create a menfess post");
         }
 
+        // Verify user is still logged in
+        if (!authService.isUserLoggedIn(user)) {
+            return ResponseEntity.badRequest().body("Your session has expired. Please login again.");
+        }
+
         try {
             Menfes menfes = menfesService.buatMenfes(request.getContent(), user);
             return ResponseEntity.ok(menfes);
