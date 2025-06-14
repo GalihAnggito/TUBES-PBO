@@ -9,7 +9,7 @@ public class Menfes extends Postingan {
     private User pengirim;
     private List<Komentar> komentarList;
     private Date timestamp;
-    private List<Integer> likedUserIds = new ArrayList<>();
+    private List<Integer> likedUserIds;
 
     public Menfes(int id, String isi, User pengirim) {
         super(id, isi);
@@ -17,6 +17,7 @@ public class Menfes extends Postingan {
         this.pengirim = pengirim;
         this.komentarList = new ArrayList<>();
         this.timestamp = new Date();
+        this.likedUserIds = new ArrayList<>();
     }
 
     public int getLikes() {
@@ -35,6 +36,10 @@ public class Menfes extends Postingan {
         return timestamp;
     }
 
+    public List<Integer> getLikedUserIds() {
+        return likedUserIds;
+    }
+
     public void setLikes(int likes) {
         this.likes = likes;
     }
@@ -51,6 +56,7 @@ public class Menfes extends Postingan {
         if (!likedUserIds.contains(userId)) {
             this.likes++;
             likedUserIds.add(userId);
+            return this.likes;
         }
         return this.likes;
     }

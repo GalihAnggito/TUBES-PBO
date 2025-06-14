@@ -47,10 +47,13 @@ public class MenfesService {
     public int likeMenfes(int id, int userId) {
         for (Menfes menfes : menfessList) {
             if (menfes.getID() == id) {
+                if (menfes.hasLiked(userId)) {
+                    throw new IllegalStateException("You have already liked this menfess");
+                }
                 return menfes.tambahLike(userId);
             }
         }
-        return 0;
+        throw new IllegalStateException("Menfess not found");
     }
 
     public boolean komenMenfes(int id, Komentar komentar) {
