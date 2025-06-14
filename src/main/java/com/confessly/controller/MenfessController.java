@@ -4,6 +4,7 @@ import com.confessly.model.Menfes;
 import com.confessly.model.User;
 import com.confessly.model.Komentar;
 import com.confessly.service.MenfesService;
+import com.confessly.service.LoginLogout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,9 @@ public class MenfessController {
     @Autowired
     private MenfesService menfesService;
 
+    @Autowired
+    private LoginLogout authService;
+
     @GetMapping
     public List<Menfes> getAllMenfess() {
         return menfesService.lihatMenfesTerbaru();
@@ -28,15 +32,28 @@ public class MenfessController {
     }
 
     @PostMapping
-    public ResponseEntity<Menfes> createMenfess(@RequestBody MenfesRequest request) {
-        User user = new User(1, request.getUsername(), "", "user"); // In real app, get from session
-        Menfes menfes = menfesService.buatMenfes(request.getContent(), user);
-        return ResponseEntity.ok(menfes);
+    public ResponseEntity<?> createMenfess(@RequestBody MenfesRequest request) {
+        // Verify user is logged in
+        User user = authService.login(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Please login first to create a menfess post");
+        }
+
+        try {
+            Menfes menfes = menfesService.buatMenfes(request.getContent(), user);
+            return ResponseEntity.ok(menfes);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<Integer> likeMenfess(@PathVariable int id) {
-        int likes = menfesService.likeMenfes(id);
+    public ResponseEntity<Integer> likeMenfess(@PathVariable int id, @RequestBody LikeRequest request) {
+        User user = authService.login(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return ResponseEntity.badRequest().body(0);
+        }
+        int likes = menfesService.likeMenfes(id, user.getId());
         return ResponseEntity.ok(likes);
     }
 
@@ -70,6 +87,7 @@ public class MenfessController {
 class MenfesRequest {
     private String username;
     private String content;
+    private String password;
 
     public String getUsername() {
         return username;
@@ -85,6 +103,14 @@ class MenfesRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
 
@@ -107,4 +133,13 @@ class CommentRequest {
     public void setContent(String content) {
         this.content = content;
     }
+}
+
+class LikeRequest {
+    private String username;
+    private String password;
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 } 

@@ -503,67 +503,73 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
             background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
             background-color: white;
-            margin: 10% auto;
-            padding: 20px;
+            padding: 2rem;
             border-radius: 10px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            animation: modalopen 0.4s;
-        }
-
-        @keyframes modalopen {
-            from {
-                opacity: 0;
-                transform: translateY(-60px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
         }
 
         .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             font-size: 1.5rem;
             cursor: pointer;
             color: #777;
-            transition: color 0.3s;
         }
 
-        .close-modal:hover {
-            color: var(--danger-color);
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
         }
 
         .modal-footer {
-            margin-top: 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
         }
 
         /* Responsive Design */
@@ -603,6 +609,48 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        textarea#menfessContent {
+            min-height: 70px;
+            resize: vertical;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        #createMenfessBtn {
+            background: #7158e2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 0;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+        #createMenfessBtn:hover {
+            background: #5f4bd1;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            color: #7158e2;
+            border-radius: 20px;
+            padding: 6px 16px;
+            box-shadow: 0 2px 8px rgba(113,88,226,0.08);
+            font-weight: 500;
+            margin-left: 20px;
+        }
     </style>
 </head>
 <body>
@@ -613,6 +661,10 @@
             <div class="auth-buttons">
                 <button class="btn btn-secondary" id="login-btn">Login</button>
                 <button class="btn btn-primary" id="signup-btn">Sign Up</button>
+            </div>
+            <div class="profile-menu" id="profileMenu" style="display:none;">
+                <span id="profileUsername"></span>
+                <button onclick="logout()" class="btn btn-secondary" style="margin-left:10px;">Logout</button>
             </div>
         </div>
     </header>
@@ -631,11 +683,11 @@
         <!-- Menfess Posts -->
         <div class="menfess-container">
             <div class="menfess-header">
-                <h2>Latest Menfess</h2>
+                <h2>Menfess</h2>
                 <div class="filters">
-                    <div class="filter-item active">All</div>
-                    <div class="filter-item">Popular</div>
-                    <div class="filter-item">My Menfess</div>
+                    <div class="filter-item active" id="filter-all" onclick="showAllMenfess()">ALL</div>
+                    <div class="filter-item" id="filter-popular" onclick="showPopularMenfess()">Popular</div>
+                    <div class="filter-item" id="filter-my" onclick="showMyMenfess()">My Menfess</div>
                 </div>
             </div>
             <div class="menfess-list">
@@ -645,27 +697,12 @@
 
         <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Create New Menfess Card -->
+            <!-- Create New Menfess Form (Match Rules Card) -->
             <div class="sidebar-card">
-                <div class="sidebar-header">
-                    Create New Menfess
-                </div>
+                <div class="sidebar-header">Create New Menfess</div>
                 <div class="sidebar-content">
-                    <form class="new-menfess-form">
-                        <div class="form-group">
-                            <label for="menfess-content">Your Message:</label>
-                            <textarea class="form-control" id="menfess-content" placeholder="What's on your mind?"></textarea>
-                            <div class="help-text">Max 280 characters</div>
-                        </div>
-                        <div class="form-group anonymous-toggle">
-                            <span>Post Anonymously</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Post Menfess</button>
-                    </form>
+                    <textarea id="menfessContent" placeholder="What's on your mind?"></textarea>
+                    <button id="createMenfessBtn" onclick="checkAuthBeforeMenfess() && createMenfess()">Post Menfess</button>
                 </div>
             </div>
 
@@ -701,13 +738,9 @@
             </div>
             <!-- Trending Topics Card -->
             <div class="sidebar-card">
-                <div class="sidebar-header">
-                    Trending Topics
-                </div>
+                <div class="sidebar-header">Trending Topic</div>
                 <div class="sidebar-content">
-                    <div class="trending-topics">
-                        <!-- Trending topics will be loaded dynamically -->
-                    </div>
+                    <div class="trending-topics" id="trendingTopics"></div>
                 </div>
             </div>
         </div>
@@ -748,56 +781,50 @@
     </footer>
 
     <!-- Login Modal -->
-    <div id="login-modal" class="modal">
+    <div id="loginModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Login</h2>
-                <span class="close-modal">&times;</span>
-            </div>
-            <form>
+            <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="login-username">Username</label>
-                    <input type="text" id="login-username" class="form-control" required>
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required>
                 </div>
                 <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" class="form-control" required>
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
                 </div>
+                <div class="error-message" id="loginError"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <p>Don't have an account? <a onclick="showModal('signupModal'); closeModal('loginModal')">Sign up</a></p>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Sign Up Modal -->
-    <div id="signup-modal" class="modal">
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Sign Up</h2>
-                <span class="close-modal">&times;</span>
-            </div>
-            <form>
+            <span class="close-modal" onclick="closeModal('signupModal')">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="signupForm" onsubmit="handleSignup(event)">
                 <div class="form-group">
-                    <label for="signup-username">Username</label>
-                    <input type="text" id="signup-username" class="form-control" required>
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" required>
                 </div>
                 <div class="form-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" class="form-control" required>
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required>
                 </div>
                 <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" class="form-control" required>
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" required>
                 </div>
-                <div class="form-group">
-                    <label for="signup-confirm-password">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" class="form-control" required>
-                </div>
+                <div class="error-message" id="signupError"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                    <p>Already have an account? <a onclick="showModal('loginModal'); closeModal('signupModal')">Login</a></p>
                 </div>
             </form>
         </div>
@@ -895,314 +922,473 @@
             </div>
         </div>
     </div>
-</body>
-<script>
-    // DOM Elements
-    const loginBtn = document.getElementById('login-btn');
-    const signupBtn = document.getElementById('signup-btn');
-    const loginModal = document.getElementById('login-modal');
-    const signupModal = document.getElementById('signup-modal');
-    const closeModalBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
-    const createMenfessBtn = document.getElementById('create-menfess-btn');
-    const newMenfessForm = document.querySelector('.new-menfess-form');
-    const menfessList = document.querySelector('.menfess-list');
-    const commentForms = document.querySelectorAll('.comment-form');
-    const filterItems = document.querySelectorAll('.filter-item');
 
-    // Modal Functions
-    function openModal(modal) {
-        modal.style.display = 'block';
-    }
+    <script>
+        // DOM Elements
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const loginModal = document.getElementById('loginModal');
+        const signupModal = document.getElementById('signupModal');
+        const closeModalBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
+        const createMenfessBtn = document.getElementById('create-menfess-btn');
+        const newMenfessForm = document.querySelector('.new-menfess-form');
+        const menfessList = document.querySelector('.menfess-list');
+        const commentForms = document.querySelectorAll('.comment-form');
+        const filterItems = document.querySelectorAll('.filter-item');
 
-    function closeModal(modal) {
-        modal.style.display = 'none';
-    }
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
 
-    // Event Listeners
-    loginBtn.addEventListener('click', () => openModal(loginModal));
-    signupBtn.addEventListener('click', () => openModal(signupModal));
-    createMenfessBtn.addEventListener('click', () => {
-        document.querySelector('.new-menfess-form').scrollIntoView({ behavior: 'smooth' });
-    });
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
 
-    closeModalBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            closeModal(loginModal);
-            closeModal(signupModal);
+        // Event Listeners
+        loginBtn.addEventListener('click', () => showModal('loginModal'));
+        signupBtn.addEventListener('click', () => showModal('signupModal'));
+        createMenfessBtn.addEventListener('click', () => {
+            document.querySelector('.new-menfess-form').scrollIntoView({ behavior: 'smooth' });
         });
-    });
 
-    window.addEventListener('click', (e) => {
-        if (e.target === loginModal) closeModal(loginModal);
-        if (e.target === signupModal) closeModal(signupModal);
-    });
-
-    // API Functions
-    async function fetchMenfess(filter = 'all') {
-        try {
-            const endpoint = filter === 'popular' ? '/api/menfess/popular' : '/api/menfess';
-            const response = await fetch(endpoint);
-            const data = await response.json();
-            updateMenfessList(data);
-        } catch (error) {
-            console.error('Error saat mengambil menfess:', error);
-        }
-    }
-
-    async function createMenfess(content) {
-        try {
-            const response = await fetch('/api/menfess', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: 'anonymous',
-                    content: content
-                })
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                closeModal('loginModal');
+                closeModal('signupModal');
             });
-            const data = await response.json();
-            if (response.ok) {
-                // Memperbarui daftar menfess
-                await fetchMenfess();
-                // Membersihkan form
-                document.getElementById('menfess-content').value = '';
+        });
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
-        } catch (error) {
-            console.error('Error saat membuat menfess:', error);
         }
-    }
 
-    async function likeMenfess(id) {
-        try {
-            const response = await fetch(`/api/menfess/${id}/like`, {
-                method: 'POST'
-            });
-            if (response.ok) {
+        // API Functions
+        async function fetchMenfess(filter = 'all') {
+            try {
+                const endpoint = filter === 'popular' ? '/api/menfess/popular' : '/api/menfess';
+                const response = await fetch(endpoint);
                 const data = await response.json();
-                // Memperbarui jumlah like secara langsung
-                const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
-                if (likeElement) {
-                    likeElement.textContent = `${data} Likes`;
-                }
-                // Mengubah ikon hati menjadi terisi
-                const heartIcon = document.querySelector(`[data-menfess-id="${id}"] .post-action i`);
-                if (heartIcon) {
-                    heartIcon.classList.remove('far');
-                    heartIcon.classList.add('fas');
-                }
+                updateMenfessList(data);
+            } catch (error) {
+                console.error('Error saat mengambil menfess:', error);
             }
-        } catch (error) {
-            console.error('Error saat melakukan like:', error);
         }
-    }
 
-    async function addComment(menfessId, content) {
-        try {
-            const response = await fetch(`/api/menfess/${menfessId}/comment`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: 'anonymous',
-                    content: content
-                })
-            });
-            if (response.ok) {
-                fetchMenfess();
+        async function createMenfess() {
+            const content = document.getElementById('menfessContent').value;
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            try {
+                const response = await fetch('/api/menfess', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        password: currentUser.password,
+                        content: content
+                    })
+                });
+
+                if (response.ok) {
+                    // Clear the form and refresh the menfess list
+                    document.getElementById('menfessContent').value = '';
+                    loadMenfess();
+                } else {
+                    const error = await response.text();
+                    alert(error);
+                }
+            } catch (error) {
+                alert('An error occurred while creating the menfess post.');
             }
-        } catch (error) {
-            console.error('Error saat menambahkan komentar:', error);
         }
-    }
 
-    // UI Update Functions
-    function updateMenfessList(menfess) {
-        if (!Array.isArray(menfess)) {
-            console.error('Diharapkan array menfess, mendapatkan:', menfess);
-            return;
+        async function likeMenfess(id) {
+            try {
+                const response = await fetch(`/api/menfess/${id}/like`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    // Memperbarui jumlah like secara langsung
+                    const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
+                    if (likeElement) {
+                        likeElement.textContent = `${data} Likes`;
+                    }
+                    // Mengubah ikon hati menjadi terisi
+                    const heartIcon = document.querySelector(`[data-menfess-id="${id}"] .post-action i`);
+                    if (heartIcon) {
+                        heartIcon.classList.remove('far');
+                        heartIcon.classList.add('fas');
+                    }
+                }
+            } catch (error) {
+                console.error('Error saat melakukan like:', error);
+            }
         }
-        
-        menfessList.innerHTML = menfess.map(m => `
-            <div class="menfess-post" data-menfess-id="${m.id}">
-                <div class="post-header">
-                    <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
-                    <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
-                </div>
-                <div class="post-content">
-                    <p>${m.isi || m.content}</p>
-                </div>
-                <div class="post-actions">
-                    <div class="post-action" onclick="likeMenfess(${m.id})">
-                        <i class="far fa-heart"></i>
-                        <span>${m.likes || 0} Likes</span>
+
+        async function addComment(menfessId, content) {
+            try {
+                const response = await fetch(`/api/menfess/${menfessId}/comment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'anonymous',
+                        content: content
+                    })
+                });
+                if (response.ok) {
+                    fetchMenfess();
+                }
+            } catch (error) {
+                console.error('Error saat menambahkan komentar:', error);
+            }
+        }
+
+        // UI Update Functions
+        function updateMenfessList(menfess) {
+            if (!Array.isArray(menfess)) {
+                console.error('Diharapkan array menfess, mendapatkan:', menfess);
+                return;
+            }
+            
+            menfessList.innerHTML = menfess.map(m => `
+                <div class="menfess-post" data-menfess-id="${m.id}">
+                    <div class="post-header">
+                        <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                        <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
                     </div>
-                    <div class="post-action">
-                        <i class="far fa-comment"></i>
-                        <span>${(m.komentarList || []).length} Komentar</span>
+                    <div class="post-content">
+                        <p>${m.isi || m.content}</p>
                     </div>
-                    <div class="post-action">
-                        <i class="far fa-share-square"></i>
-                        <span>Bagikan</span>
-                    </div>
-                </div>
-                <div class="comments-section">
-                    ${(m.komentarList || []).map(c => `
-                        <div class="comment">
-                            <span class="comment-user">@${c.pengirim?.username || 'anonymous'}:</span>
-                            <span class="comment-text">${c.isi || c.content}</span>
-                            <div class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</div>
+                    <div class="post-actions">
+                        <div class="post-action" onclick="likeMenfess(${m.id})">
+                            <i class="far fa-heart"></i>
+                            <span>${m.likes || 0} Likes</span>
                         </div>
-                    `).join('')}
-                    <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
-                        <input type="text" class="comment-input" placeholder="Tulis komentar...">
-                        <button type="submit" class="comment-submit">Kirim</button>
-                    </form>
+                        <div class="post-action">
+                            <i class="far fa-comment"></i>
+                            <span>${(m.komentarList || []).length} Komentar</span>
+                        </div>
+                        <div class="post-action">
+                            <i class="far fa-share-square"></i>
+                            <span>Bagikan</span>
+                        </div>
+                    </div>
+                    <div class="comments-section">
+                        ${(m.komentarList || []).map(c => `
+                            <div class="comment">
+                                <span class="comment-user">@${c.pengirim?.username || 'anonymous'}:</span>
+                                <span class="comment-text">${c.isi || c.content}</span>
+                                <div class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</div>
+                            </div>
+                        `).join('')}
+                        <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                            <input type="text" class="comment-input" placeholder="Tulis komentar...">
+                            <button type="submit" class="comment-submit">Kirim</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        `).join('');
-    }
-
-    function updateLikeCount(id, likes) {
-        const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
-        if (likeElement) {
-            likeElement.textContent = `${likes} Likes`;
+            `).join('');
         }
-    }
 
-    function formatTime(timestamp) {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now - date;
-        
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        if (minutes < 60) return `${minutes} minutes ago`;
-        if (hours < 24) return `${hours} hours ago`;
-        return `${days} days ago`;
-    }
-
-    // Form Handlers
-    newMenfessForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const content = document.getElementById('menfess-content').value;
-        if (content.trim()) {
-            await createMenfess(content);
+        function updateLikeCount(id, likes) {
+            const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
+            if (likeElement) {
+                likeElement.textContent = `${likes} Likes`;
+            }
         }
-    });
 
-    function handleCommentSubmit(event, menfessId) {
-        event.preventDefault();
-        const form = event.target;
-        const input = form.querySelector('.comment-input');
-        const content = input.value;
-        if (content.trim()) {
-            addComment(menfessId, content);
-            input.value = '';
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (minutes < 60) return `${minutes} minutes ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            return `${days} days ago`;
         }
-    }
 
-    // Filter Functions
-    function setupFilters() {
-        filterItems.forEach(item => {
-            item.addEventListener('click', () => {
-                // Menghapus kelas aktif dari semua filter
-                filterItems.forEach(fi => fi.classList.remove('active'));
-                // Menambahkan kelas aktif ke filter yang diklik
-                item.classList.add('active');
-                
-                // Mengambil menfess berdasarkan filter
-                const filter = item.textContent.toLowerCase();
-                fetchMenfess(filter);
-            });
-        });
-    }
-
-    // Inisialisasi
-    document.addEventListener('DOMContentLoaded', () => {
-        setupFilters();
-        fetchMenfess();
-        fetchTrendingHashtags();
-    });
-
-    // Mengambil hashtag trending
-    async function fetchTrendingHashtags() {
-        try {
-            const response = await fetch('/api/menfess/trending');
-            const hashtags = await response.json();
-            updateTrendingTopics(hashtags);
-        } catch (error) {
-            console.error('Error saat mengambil hashtag trending:', error);
-        }
-    }
-
-    // Memperbarui topik trending di UI
-    function updateTrendingTopics(hashtags) {
-        const trendingTopicsContainer = document.querySelector('.trending-topics');
-        if (hashtags.length === 0) {
-            trendingTopicsContainer.innerHTML = '<div class="no-trends">Belum ada topik trending</div>';
-            return;
-        }
-        
-        trendingTopicsContainer.innerHTML = hashtags.map(hashtag => 
-            `<div class="topic-tag" onclick="filterByHashtag('${hashtag}')">${hashtag}</div>`
-        ).join('');
-    }
-
-    // Filter post berdasarkan hashtag
-    function filterByHashtag(hashtag) {
-        const posts = document.querySelectorAll('.menfess-post');
-        posts.forEach(post => {
-            const content = post.querySelector('.post-content').textContent.toLowerCase();
-            if (content.includes(hashtag.toLowerCase())) {
-                post.style.display = 'block';
-            } else {
-                post.style.display = 'none';
+        // Form Handlers
+        newMenfessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('menfess-content').value;
+            if (content.trim()) {
+                await createMenfess(content);
             }
         });
-    }
 
-    // Additional Modal Elements
-    const rulesModal = document.getElementById('rules-modal');
-    const aboutModal = document.getElementById('about-modal');
-    const privacyModal = document.getElementById('privacy-modal');
+        function handleCommentSubmit(event, menfessId) {
+            event.preventDefault();
+            const form = event.target;
+            const input = form.querySelector('.comment-input');
+            const content = input.value;
+            if (content.trim()) {
+                addComment(menfessId, content);
+                input.value = '';
+            }
+        }
 
-    // Update footer links to open modals
-    document.querySelector('a[href="#rules"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        openModal(rulesModal);
-    });
+        // Filter Functions
+        function setupFilters() {
+            filterItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Menghapus kelas aktif dari semua filter
+                    filterItems.forEach(fi => fi.classList.remove('active'));
+                    // Menambahkan kelas aktif ke filter yang diklik
+                    item.classList.add('active');
+                    
+                    // Mengambil menfess berdasarkan filter
+                    const filter = item.textContent.toLowerCase();
+                    fetchMenfess(filter);
+                });
+            });
+        }
 
-    document.querySelector('a[href="#about-confessly"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        openModal(aboutModal);
-    });
-
-    document.querySelector('a[href="#privacy-policy"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        openModal(privacyModal);
-    });
-
-    // Update close modal functionality to include new modals
-    closeModalBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            closeModal(loginModal);
-            closeModal(signupModal);
-            closeModal(rulesModal);
-            closeModal(aboutModal);
-            closeModal(privacyModal);
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFilters();
+            fetchMenfess();
+            fetchTrendingHashtags();
         });
-    });
 
-    window.addEventListener('click', (e) => {
-        if (e.target === loginModal) closeModal(loginModal);
-        if (e.target === signupModal) closeModal(signupModal);
-        if (e.target === rulesModal) closeModal(rulesModal);
-        if (e.target === aboutModal) closeModal(aboutModal);
-        if (e.target === privacyModal) closeModal(privacyModal);
-    });
-</script>
+        // Mengambil hashtag trending
+        async function fetchTrendingHashtags() {
+            try {
+                const response = await fetch('/api/menfess/trending');
+                const hashtags = await response.json();
+                updateTrendingTopics(hashtags);
+            } catch (error) {
+                console.error('Error saat mengambil hashtag trending:', error);
+            }
+        }
+
+        // Memperbarui topik trending di UI
+        function updateTrendingTopics(hashtags) {
+            const trendingTopicsContainer = document.querySelector('.trending-topics');
+            if (hashtags.length === 0) {
+                trendingTopicsContainer.innerHTML = '<div class="no-trends">Belum ada topik trending</div>';
+                return;
+            }
+            
+            trendingTopicsContainer.innerHTML = hashtags.map(hashtag => 
+                `<div class="topic-tag" onclick="filterByHashtag('${hashtag}')">${hashtag}</div>`
+            ).join('');
+        }
+
+        // Filter post berdasarkan hashtag
+        function filterByHashtag(hashtag) {
+            const posts = document.querySelectorAll('.menfess-post');
+            posts.forEach(post => {
+                const content = post.querySelector('.post-content').textContent.toLowerCase();
+                if (content.includes(hashtag.toLowerCase())) {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+
+        // Additional Modal Elements
+        const rulesModal = document.getElementById('rules-modal');
+        const aboutModal = document.getElementById('about-modal');
+        const privacyModal = document.getElementById('privacy-modal');
+
+        // Update footer links to open modals
+        document.querySelector('a[href="#rules"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('rules-modal');
+        });
+
+        document.querySelector('a[href="#about-confessly"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('about-modal');
+        });
+
+        document.querySelector('a[href="#privacy-policy"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            showModal('privacy-modal');
+        });
+
+        // Handle Login
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorElement = document.getElementById('loginError');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    closeModal('loginModal');
+                    // Enable menfess creation
+                    document.getElementById('create-menfess-btn').disabled = false;
+                    showProfileMenu();
+                } else {
+                    const error = await response.text();
+                    errorElement.textContent = error;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'An error occurred. Please try again.';
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Handle Signup
+        async function handleSignup(event) {
+            event.preventDefault();
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorElement = document.getElementById('signupError');
+
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'Passwords do not match';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    closeModal('signupModal');
+                    // Enable menfess creation
+                    document.getElementById('create-menfess-btn').disabled = false;
+                    showProfileMenu();
+                } else {
+                    const error = await response.text();
+                    errorElement.textContent = error;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'An error occurred. Please try again.';
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Check authentication before creating menfess
+        function checkAuthBeforeMenfess() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                showModal('loginModal');
+                return false;
+            }
+            return true;
+        }
+
+        let currentFilter = 'all';
+
+        function setActiveFilter(filter) {
+            document.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('filter-' + filter).classList.add('active');
+            currentFilter = filter;
+        }
+
+        function showAllMenfess() {
+            setActiveFilter('all');
+            loadMenfess('/api/menfess');
+        }
+
+        function showPopularMenfess() {
+            setActiveFilter('popular');
+            loadMenfess('/api/menfess/popular');
+        }
+
+        function showMyMenfess() {
+            setActiveFilter('my');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                showModal('loginModal');
+                return;
+            }
+            loadMenfess('/api/menfess/my?username=' + encodeURIComponent(currentUser.username));
+        }
+
+        // Fungsi loadMenfess(url) harus menampilkan daftar menfess sesuai endpoint
+        async function loadMenfess(url = '/api/menfess') {
+            const res = await fetch(url);
+            const data = await res.json();
+            // Render data ke .menfess-list (implementasi sesuai struktur project)
+            // Contoh sederhana:
+            const list = document.querySelector('.menfess-list');
+            if (!list) return;
+            list.innerHTML = data.map(m => `
+                <div class="menfess-post">
+                    <div class="post-header">
+                        <span>${m.pengirim ? m.pengirim.username : 'Anonymous'}</span>
+                        <span>${new Date(m.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="post-content">${m.isi}</div>
+                    <div class="post-actions">
+                        <span><i class="fa fa-heart"></i> ${m.likes}</span>
+                        <span><i class="fa fa-comment"></i> ${m.komentarList ? m.komentarList.length : 0}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Trending Topic
+        async function loadTrendingTopics() {
+            const res = await fetch('/api/menfess/trending');
+            const hashtags = await res.json();
+            const container = document.getElementById('trendingTopics');
+            container.innerHTML = hashtags.map(tag => `<span class="topic-tag">${tag}</span>`).join('');
+        }
+
+        function showProfileMenu() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                document.getElementById('profileMenu').style.display = 'flex';
+                document.getElementById('profileUsername').textContent = currentUser.username;
+                const authBtns = document.querySelector('.auth-buttons');
+                if (authBtns) authBtns.style.display = 'none';
+            } else {
+                document.getElementById('profileMenu').style.display = 'none';
+                const authBtns = document.querySelector('.auth-buttons');
+                if (authBtns) authBtns.style.display = 'flex';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            showProfileMenu();
+            location.reload();
+        }
+
+        window.onload = function() {
+            showProfileMenu();
+            loadTrendingTopics();
+            showAllMenfess();
+        };
+    </script>
+</body>
 </html> 

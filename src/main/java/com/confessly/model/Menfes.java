@@ -9,6 +9,7 @@ public class Menfes extends Postingan {
     private User pengirim;
     private List<Komentar> komentarList;
     private Date timestamp;
+    private List<Integer> likedUserIds = new ArrayList<>();
 
     public Menfes(int id, String isi, User pengirim) {
         super(id, isi);
@@ -46,9 +47,16 @@ public class Menfes extends Postingan {
         this.komentarList.add(komentar);
     }
 
-    public int tambahLike() {
-        this.likes++;
+    public int tambahLike(int userId) {
+        if (!likedUserIds.contains(userId)) {
+            this.likes++;
+            likedUserIds.add(userId);
+        }
         return this.likes;
+    }
+
+    public boolean hasLiked(int userId) {
+        return likedUserIds.contains(userId);
     }
 
     public List<String> getHashtags() {

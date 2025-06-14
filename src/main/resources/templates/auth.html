@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Signup - Confessly</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7158e2;
+        }
+
+        .modal-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-footer a {
+            color: #7158e2;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: #7158e2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5f4bd1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div class="error-message" id="loginError"></div>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div class="modal-footer">
+                    <p>Don't have an account? <a onclick="showModal('signupModal'); closeModal('loginModal')">Sign up</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('signupModal')">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <div class="error-message" id="signupError"></div>
+                <button type="submit" class="btn btn-primary">Sign Up</button>
+                <div class="modal-footer">
+                    <p>Already have an account? <a onclick="showModal('loginModal'); closeModal('signupModal')">Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Handle Login
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorElement = document.getElementById('loginError');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    closeModal('loginModal');
+                    // Enable menfess creation
+                    document.getElementById('createMenfessBtn').disabled = false;
+                } else {
+                    const error = await response.text();
+                    errorElement.textContent = error;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'An error occurred. Please try again.';
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Handle Signup
+        async function handleSignup(event) {
+            event.preventDefault();
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorElement = document.getElementById('signupError');
+
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'Passwords do not match';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    closeModal('signupModal');
+                    // Enable menfess creation
+                    document.getElementById('createMenfessBtn').disabled = false;
+                } else {
+                    const error = await response.text();
+                    errorElement.textContent = error;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = 'An error occurred. Please try again.';
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Check authentication before creating menfess
+        function checkAuthBeforeMenfess() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                showModal('loginModal');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html> 

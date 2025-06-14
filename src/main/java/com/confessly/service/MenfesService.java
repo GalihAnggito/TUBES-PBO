@@ -14,13 +14,18 @@ import java.util.stream.Collectors;
 public class MenfesService {
     private List<Menfes> menfessList;
     private int nextId;
+    private LoginLogout authService;
 
     public MenfesService() {
         this.menfessList = new ArrayList<>();
         this.nextId = 1;
+        this.authService = new LoginLogout();
     }
 
     public Menfes buatMenfes(String isi, User user) {
+        if (!authService.isUserLoggedIn(user)) {
+            throw new IllegalStateException("User must be logged in to create a menfess post");
+        }
         Menfes menfes = new Menfes(nextId++, isi, user);
         menfessList.add(menfes);
         return menfes;
@@ -39,10 +44,10 @@ public class MenfesService {
         return false;
     }
 
-    public int likeMenfes(int id) {
+    public int likeMenfes(int id, int userId) {
         for (Menfes menfes : menfessList) {
             if (menfes.getID() == id) {
-                return menfes.tambahLike();
+                return menfes.tambahLike(userId);
             }
         }
         return 0;
