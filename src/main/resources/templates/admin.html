@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Panel - Menfess</title>
+</head>
+<body>
+    <h1>Daftar Menfess</h1>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Isi</th>
+            <th>Pengirim</th>
+            <th>Waktu</th>
+            <th>Aksi</th>
+        </tr>
+        <tr th:each="menfess : ${menfessList}">
+            <td th:text="${menfess.ID}"></td>
+            <td th:text="${menfess.isi}"></td>
+            <td th:text="${menfess.pengirim.username}"></td>
+            <td th:text="${#dates.format(menfess.timestamp, 'dd-MM-yyyy HH:mm')}"></td>
+            <td>
+                <form th:action="@{/admin/delete-menfess/{id}(id=${menfess.ID})}" method="post">
+                    <button type="submit">Hapus jika tidak pantas</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
