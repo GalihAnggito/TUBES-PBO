@@ -1174,33 +1174,33 @@
         </div>
     </div>
 
-    <script>
+<script>
         // Deklarasi currentFilter di atas
         let currentFilter = 'all';
         let currentEditId = null;
 
-        // DOM Elements
-        const loginBtn = document.getElementById('login-btn');
-        const signupBtn = document.getElementById('signup-btn');
+    // DOM Elements
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
         const loginModal = document.getElementById('loginModal');
         const signupModal = document.getElementById('signupModal');
-        const closeModalBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
-        const createMenfessBtn = document.getElementById('create-menfess-btn');
-        const newMenfessForm = document.querySelector('.new-menfess-form');
-        const menfessList = document.querySelector('.menfess-list');
-        const commentForms = document.querySelectorAll('.comment-form');
-        const filterItems = document.querySelectorAll('.filter-item');
+    const closeModalBtns = document.querySelectorAll('.close-modal, .close-modal-btn');
+    const createMenfessBtn = document.getElementById('create-menfess-btn');
+    const newMenfessForm = document.querySelector('.new-menfess-form');
+    const menfessList = document.querySelector('.menfess-list');
+    const commentForms = document.querySelectorAll('.comment-form');
+    const filterItems = document.querySelectorAll('.filter-item');
 
-        // Modal Functions
+    // Modal Functions
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
-        }
+    }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-        }
+    }
 
-        // Event Listeners
+    // Event Listeners
         if (loginBtn) loginBtn.addEventListener('click', () => showModal('loginModal'));
         if (signupBtn) signupBtn.addEventListener('click', () => showModal('signupModal'));
         if (createMenfessBtn) createMenfessBtn.addEventListener('click', () => {
@@ -1209,7 +1209,7 @@
         });
         if (closeModalBtns) closeModalBtns.forEach(btn => {
             if (btn) {
-                btn.addEventListener('click', () => {
+        btn.addEventListener('click', () => {
                     closeModal('loginModal');
                     closeModal('signupModal');
                 });
@@ -1222,17 +1222,17 @@
             }
         }
 
-        // API Functions
-        async function fetchMenfess(filter = 'all') {
-            try {
-                const endpoint = filter === 'popular' ? '/api/menfess/popular' : '/api/menfess';
-                const response = await fetch(endpoint);
-                const data = await response.json();
-                updateMenfessList(data);
-            } catch (error) {
-                console.error('Error saat mengambil menfess:', error);
-            }
+    // API Functions
+    async function fetchMenfess(filter = 'all') {
+        try {
+            const endpoint = filter === 'popular' ? '/api/menfess/popular' : '/api/menfess';
+            const response = await fetch(endpoint);
+            const data = await response.json();
+            updateMenfessList(data);
+        } catch (error) {
+            console.error('Error saat mengambil menfess:', error);
         }
+    }
 
         async function createMenfess() {
             const content = document.getElementById('menfessContent').value;
@@ -1243,20 +1243,20 @@
                 return;
             }
 
-            try {
-                const response = await fetch('/api/menfess', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
+        try {
+            const response = await fetch('/api/menfess', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
                         username: currentUser.username,
                         password: currentUser.password,
-                        content: content
-                    })
-                });
+                    content: content
+                })
+            });
 
-                if (response.ok) {
+            if (response.ok) {
                     // Clear the form and refresh the menfess list
                     document.getElementById('menfessContent').value = '';
                     loadMenfess();
@@ -1268,22 +1268,22 @@
                         showModal('loginModal');
                     }
                     alert(error);
-                }
-            } catch (error) {
+            }
+        } catch (error) {
                 console.error('Error creating menfess:', error);
                 alert('An error occurred while creating the menfess post.');
-            }
         }
+    }
 
-        async function likeMenfess(id) {
+    async function likeMenfess(id) {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (!currentUser) {
                 showModal('loginModal');
                 return;
             }
 
-            try {
-                const response = await fetch(`/api/menfess/${id}/like`, {
+        try {
+            const response = await fetch(`/api/menfess/${id}/like`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1294,7 +1294,7 @@
                     })
                 });
 
-                if (response.ok) {
+            if (response.ok) {
                     const likes = await response.json();
                     const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action`);
                     const likeCount = likeElement.querySelector('span');
@@ -1310,9 +1310,9 @@
                         heartIcon.classList.add('far');
                     } else {
                         likeElement.classList.add('liked');
-                        heartIcon.classList.remove('far');
-                        heartIcon.classList.add('fas');
-                    }
+                    heartIcon.classList.remove('far');
+                    heartIcon.classList.add('fas');
+                }
                 } else {
                     const error = await response.text();
                     if (error.includes("session has expired")) {
@@ -1320,34 +1320,34 @@
                         showModal('loginModal');
                     }
                     alert(error);
-                }
-            } catch (error) {
+            }
+        } catch (error) {
                 console.error('Error liking menfess:', error);
                 alert('An error occurred while liking the menfess.');
-            }
         }
+    }
 
-        async function addComment(menfessId, content) {
+    async function addComment(menfessId, content) {
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
             if (!currentUser) {
                 showModal('loginModal');
                 return;
             }
 
-            try {
-                const response = await fetch(`/api/menfess/${menfessId}/comment`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
+        try {
+            const response = await fetch(`/api/menfess/${menfessId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
                         username: currentUser.username,
                         password: currentUser.password,
-                        content: content
-                    })
-                });
+                    content: content
+                })
+            });
 
-                if (response.ok) {
+            if (response.ok) {
                     const result = await response.json();
                     // Clear the comment input
                     const commentInput = document.querySelector(`[data-menfess-id="${menfessId}"] .comment-input`);
@@ -1364,8 +1364,8 @@
                     } else {
                         alert(error);
                     }
-                }
-            } catch (error) {
+            }
+        } catch (error) {
                 console.error('Error adding comment:', error);
                 alert('An error occurred while adding the comment.');
             }
@@ -1386,174 +1386,174 @@
             const commentsSection = document.querySelector(`[data-menfess-id="${menfessId}"] .comments-section`);
             if (commentsSection) {
                 commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
-            }
         }
+    }
 
-        // UI Update Functions
-        function updateMenfessList(menfess) {
-            if (!Array.isArray(menfess)) {
-                console.error('Diharapkan array menfess, mendapatkan:', menfess);
-                return;
-            }
+    // UI Update Functions
+    function updateMenfessList(menfess) {
+        if (!Array.isArray(menfess)) {
+            console.error('Diharapkan array menfess, mendapatkan:', menfess);
+            return;
+        }
             
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            
-            menfessList.innerHTML = menfess.map(m => `
-                <div class="menfess-post" data-menfess-id="${m.id}">
-                    <div class="post-header">
-                        <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
-                        <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
-                    </div>
-                    <div class="post-content">
-                        <p>${m.isi || m.content}</p>
-                    </div>
-                    <div class="post-actions">
+        
+        menfessList.innerHTML = menfess.map(m => `
+            <div class="menfess-post" data-menfess-id="${m.id}">
+                <div class="post-header">
+                    <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                    <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
+                </div>
+                <div class="post-content">
+                    <p>${m.isi || m.content}</p>
+                </div>
+                <div class="post-actions">
                         <div class="post-action ${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
                             <i class="${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'fas' : 'far'} fa-heart"></i>
-                            <span>${m.likes || 0} Likes</span>
-                        </div>
+                        <span>${m.likes || 0} Likes</span>
+                    </div>
                         <div class="post-action" onclick="toggleComments(${m.id})">
-                            <i class="far fa-comment"></i>
-                            <span>${(m.komentarList || []).length} Komentar</span>
-                        </div>
+                        <i class="far fa-comment"></i>
+                        <span>${(m.komentarList || []).length} Komentar</span>
+                    </div>
                         ${currentUser && (currentUser.id === m.pengirim.id || currentUser.role === 'admin') ? `
                         <div class="post-action edit" onclick="showEditModal(${m.id}, '${(m.isi || m.content).replace(/'/g, "\\'")}')">
                             <i class="fas fa-edit"></i>
                             <span>Edit</span>
-                        </div>
+                    </div>
                         <div class="post-action delete" onclick="deleteMenfess(${m.id})">
                             <i class="fas fa-trash"></i>
                             <span>Delete</span>
-                        </div>
+                </div>
                         ` : ''}
                     </div>
                     <div class="comments-section" style="display: none;">
-                        ${(m.komentarList || []).map(c => `
-                            <div class="comment">
+                    ${(m.komentarList || []).map(c => `
+                        <div class="comment">
                                 <div class="comment-header">
                                     <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
                                     <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
                                 </div>
                                 <div class="comment-text">${c.isi || c.content}</div>
-                            </div>
-                        `).join('')}
-                        <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
-                            <input type="text" class="comment-input" placeholder="Tulis komentar...">
-                            <button type="submit" class="comment-submit">Kirim</button>
-                        </form>
-                    </div>
+                        </div>
+                    `).join('')}
+                    <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                        <input type="text" class="comment-input" placeholder="Tulis komentar...">
+                        <button type="submit" class="comment-submit">Kirim</button>
+                    </form>
                 </div>
-            `).join('');
+            </div>
+        `).join('');
+    }
+
+    function updateLikeCount(id, likes) {
+        const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
+        if (likeElement) {
+            likeElement.textContent = `${likes} Likes`;
         }
+    }
 
-        function updateLikeCount(id, likes) {
-            const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action span`);
-            if (likeElement) {
-                likeElement.textContent = `${likes} Likes`;
-            }
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (minutes < 60) return `${minutes} minutes ago`;
+        if (hours < 24) return `${hours} hours ago`;
+        return `${days} days ago`;
+    }
+
+    // Form Handlers
+    newMenfessForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = document.getElementById('menfess-content').value;
+        if (content.trim()) {
+            await createMenfess(content);
         }
+    });
 
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = now - date;
-            
-            const minutes = Math.floor(diff / 60000);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
+    // Filter Functions
+    function setupFilters() {
+        filterItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Menghapus kelas aktif dari semua filter
+                filterItems.forEach(fi => fi.classList.remove('active'));
+                // Menambahkan kelas aktif ke filter yang diklik
+                item.classList.add('active');
+                
+                // Mengambil menfess berdasarkan filter
+                const filter = item.textContent.toLowerCase();
+                fetchMenfess(filter);
+            });
+        });
+    }
 
-            if (minutes < 60) return `${minutes} minutes ago`;
-            if (hours < 24) return `${hours} hours ago`;
-            return `${days} days ago`;
+    // Inisialisasi
+    document.addEventListener('DOMContentLoaded', () => {
+        setupFilters();
+        fetchMenfess();
+        fetchTrendingHashtags();
+    });
+
+    // Mengambil hashtag trending
+    async function fetchTrendingHashtags() {
+        try {
+            const response = await fetch('/api/menfess/trending');
+            const hashtags = await response.json();
+            updateTrendingTopics(hashtags);
+        } catch (error) {
+            console.error('Error saat mengambil hashtag trending:', error);
         }
+    }
 
-        // Form Handlers
-        newMenfessForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const content = document.getElementById('menfess-content').value;
-            if (content.trim()) {
-                await createMenfess(content);
+    // Memperbarui topik trending di UI
+    function updateTrendingTopics(hashtags) {
+        const trendingTopicsContainer = document.querySelector('.trending-topics');
+        if (hashtags.length === 0) {
+            trendingTopicsContainer.innerHTML = '<div class="no-trends">Belum ada topik trending</div>';
+            return;
+        }
+        
+        trendingTopicsContainer.innerHTML = hashtags.map(hashtag => 
+            `<div class="topic-tag" onclick="filterByHashtag('${hashtag}')">${hashtag}</div>`
+        ).join('');
+    }
+
+    // Filter post berdasarkan hashtag
+    function filterByHashtag(hashtag) {
+        const posts = document.querySelectorAll('.menfess-post');
+        posts.forEach(post => {
+            const content = post.querySelector('.post-content').textContent.toLowerCase();
+            if (content.includes(hashtag.toLowerCase())) {
+                post.style.display = 'block';
+            } else {
+                post.style.display = 'none';
             }
         });
+    }
 
-        // Filter Functions
-        function setupFilters() {
-            filterItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    // Menghapus kelas aktif dari semua filter
-                    filterItems.forEach(fi => fi.classList.remove('active'));
-                    // Menambahkan kelas aktif ke filter yang diklik
-                    item.classList.add('active');
-                    
-                    // Mengambil menfess berdasarkan filter
-                    const filter = item.textContent.toLowerCase();
-                    fetchMenfess(filter);
-                });
-            });
-        }
+    // Additional Modal Elements
+    const rulesModal = document.getElementById('rules-modal');
+    const aboutModal = document.getElementById('about-modal');
+    const privacyModal = document.getElementById('privacy-modal');
 
-        // Inisialisasi
-        document.addEventListener('DOMContentLoaded', () => {
-            setupFilters();
-            fetchMenfess();
-            fetchTrendingHashtags();
-        });
-
-        // Mengambil hashtag trending
-        async function fetchTrendingHashtags() {
-            try {
-                const response = await fetch('/api/menfess/trending');
-                const hashtags = await response.json();
-                updateTrendingTopics(hashtags);
-            } catch (error) {
-                console.error('Error saat mengambil hashtag trending:', error);
-            }
-        }
-
-        // Memperbarui topik trending di UI
-        function updateTrendingTopics(hashtags) {
-            const trendingTopicsContainer = document.querySelector('.trending-topics');
-            if (hashtags.length === 0) {
-                trendingTopicsContainer.innerHTML = '<div class="no-trends">Belum ada topik trending</div>';
-                return;
-            }
-            
-            trendingTopicsContainer.innerHTML = hashtags.map(hashtag => 
-                `<div class="topic-tag" onclick="filterByHashtag('${hashtag}')">${hashtag}</div>`
-            ).join('');
-        }
-
-        // Filter post berdasarkan hashtag
-        function filterByHashtag(hashtag) {
-            const posts = document.querySelectorAll('.menfess-post');
-            posts.forEach(post => {
-                const content = post.querySelector('.post-content').textContent.toLowerCase();
-                if (content.includes(hashtag.toLowerCase())) {
-                    post.style.display = 'block';
-                } else {
-                    post.style.display = 'none';
-                }
-            });
-        }
-
-        // Additional Modal Elements
-        const rulesModal = document.getElementById('rules-modal');
-        const aboutModal = document.getElementById('about-modal');
-        const privacyModal = document.getElementById('privacy-modal');
-
-        // Update footer links to open modals
-        document.querySelector('a[href="#rules"]').addEventListener('click', (e) => {
-            e.preventDefault();
+    // Update footer links to open modals
+    document.querySelector('a[href="#rules"]').addEventListener('click', (e) => {
+        e.preventDefault();
             showModal('rules-modal');
-        });
+    });
 
-        document.querySelector('a[href="#about-confessly"]').addEventListener('click', (e) => {
-            e.preventDefault();
+    document.querySelector('a[href="#about-confessly"]').addEventListener('click', (e) => {
+        e.preventDefault();
             showModal('about-modal');
-        });
+    });
 
-        document.querySelector('a[href="#privacy-policy"]').addEventListener('click', (e) => {
-            e.preventDefault();
+    document.querySelector('a[href="#privacy-policy"]').addEventListener('click', (e) => {
+        e.preventDefault();
             showModal('privacy-modal');
         });
 
@@ -2045,6 +2045,6 @@
                 event.target.style.display = 'none';
             }
         }
-    </script>
+</script>
 </body>
 </html> 

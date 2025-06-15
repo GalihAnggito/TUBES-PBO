@@ -1,73 +1,122 @@
 package com.confessly.model;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 
-public class Menfes extends Postingan {
+@Entity
+@Table(name = "menfes")
+public class Menfes {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String isi;
+    
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+    
     private int likes;
+    
+    @ManyToOne
+    @JoinColumn(name = "pengirim_id")
     private User pengirim;
-    private List<Komentar> komentarList;
-    private Date timestamp;
-    private List<Integer> likedUserIds;
+    
+    @OneToMany(mappedBy = "menfes", cascade = CascadeType.ALL)
+    private List<Komentar> komentarList = new ArrayList<>();
+    
+    @ManyToMany
+    @JoinTable(
+        name = "menfes_likes",
+        joinColumns = @JoinColumn(name = "menfes_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> likedUsers = new ArrayList<>();
+
+    public Menfes() {
+        this.createdAt = new Date();
+        this.likes = 0;
+    }
 
     public Menfes(int id, String isi, User pengirim) {
-        super(id, isi);
-        this.likes = 0;
+        this.id = id;
+        this.isi = isi;
         this.pengirim = pengirim;
-        this.komentarList = new ArrayList<>();
-        this.timestamp = new Date();
-        this.likedUserIds = new ArrayList<>();
+        this.createdAt = new Date();
+        this.likes = 0;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getIsi() {
+        return isi;
+    }
+
+    public void setIsi(String isi) {
+        this.isi = isi;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public int getLikes() {
         return likes;
     }
 
-    public User getPengirim() {
-        return pengirim;
-    }
-
-    public List<Komentar> getKomentarList() {
-        return komentarList;
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public List<Integer> getLikedUserIds() {
-        return likedUserIds;
-    }
-
     public void setLikes(int likes) {
         this.likes = likes;
+    }
+
+    public User getPengirim() {
+        return pengirim;
     }
 
     public void setPengirim(User pengirim) {
         this.pengirim = pengirim;
     }
 
+    public List<Komentar> getKomentarList() {
+        return komentarList;
+    }
+
+    public void setKomentarList(List<Komentar> komentarList) {
+        this.komentarList = komentarList;
+    }
+
     public void addKomentar(Komentar komentar) {
         this.komentarList.add(komentar);
     }
 
-    public int tambahLike(int userId) {
-        if (!likedUserIds.contains(userId)) {
+    public int tambahLike(User user) {
+        if (!likedUsers.contains(user)) {
             this.likes++;
-            likedUserIds.add(userId);
+            likedUsers.add(user);
             return this.likes;
         }
         return this.likes;
     }
 
-    public boolean hasLiked(int userId) {
-        return likedUserIds.contains(userId);
+    public boolean hasLiked(User user) {
+        return likedUsers.contains(user);
     }
 
     public List<String> getHashtags() {
         List<String> hashtags = new ArrayList<>();
-        String[] words = this.getIsi().split("\\s+");
+        String[] words = this.isi.split("\\s+");
         for (String word : words) {
             if (word.startsWith("#")) {
                 hashtags.add(word.toLowerCase());

@@ -3,9 +3,14 @@ package com.confessly.service;
 import com.confessly.model.Menfes;
 import com.confessly.model.User;
 import com.confessly.model.Komentar;
+import com.confessly.repository.MenfesRepository;
+import com.confessly.repository.UserRepository;
+import com.confessly.repository.KomentarRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,126 +20,108 @@ import java.util.stream.Collectors;
 @Service
 public class MenfesService {
     private static final Logger logger = LoggerFactory.getLogger(MenfesService.class);
-    private List<Menfes> menfessList;
-    private int nextId;
+    private final MenfesRepository menfesRepository;
+    private final UserRepository userRepository;
+    private final KomentarRepository komentarRepository;
     private LoginLogout authService;
 
-    public MenfesService() {
-        this.menfessList = new ArrayList<>();
-        this.nextId = 1;
-        this.authService = new LoginLogout();
+    @Autowired
+    public MenfesService(MenfesRepository menfesRepository, UserRepository userRepository, KomentarRepository komentarRepository, LoginLogout authService) {
+        this.menfesRepository = menfesRepository;
+        this.userRepository = userRepository;
+        this.komentarRepository = komentarRepository;
+        this.authService = authService;
     }
 
+    @Transactional
     public Menfes buatMenfes(String isi, User user) {
-        if (!authService.isUserLoggedIn(user)) {
-            throw new IllegalStateException("User must be logged in to create a menfess post");
-        }
-        Menfes menfes = new Menfes(nextId++, isi, user);
-        menfessList.add(menfes);
-        return menfes;
+        Menfes menfes = new Menfes();
+        menfes.setIsi(isi);
+        menfes.setPengirim(user);
+        return menfesRepository.save(menfes);
     }
 
+    @Transactional
     public boolean deleteMenfes(int id, User user) {
-        for (int i = 0; i < menfessList.size(); i++) {
-            Menfes menfes = menfessList.get(i);
-            if (menfes.getID() == id) {
-                if (menfes.getPengirim().getId() == user.getId() || "admin".equals(user.getRole())) {
-                    menfessList.remove(i);
-                    return true;
-                }
-            }
+        Menfes menfes = menfesRepository.findById(id).orElse(null);
+        if (menfes != null && (menfes.getPengirim().getId() == user.getId() || user.getRole().equals("admin"))) {
+            menfesRepository.delete(menfes);
+            return true;
         }
         return false;
     }
 
+    @Transactional
     public Menfes editMenfes(int id, String newContent, User user) {
-        for (Menfes menfes : menfessList) {
-            if (menfes.getID() == id) {
-                if (menfes.getPengirim().getId() == user.getId() || "admin".equals(user.getRole())) {
-                    menfes.setIsi(newContent);
-                    return menfes;
-                }
-                throw new IllegalStateException("You don't have permission to edit this menfess");
+        Menfes menfes = menfesRepository.findById(id).orElse(null);
+        if (menfes != null) {
+            if (menfes.getPengirim().getId() == user.getId() || "admin".equals(user.getRole())) {
+                menfes.setIsi(newContent);
+                return menfesRepository.save(menfes);
             }
+            throw new IllegalStateException("You don't have permission to edit this menfess");
         }
         throw new IllegalStateException("Menfess not found");
     }
 
-    public int likeMenfes(int id, int userId) {
-        for (Menfes menfes : menfessList) {
-            if (menfes.getID() == id) {
-                if (menfes.hasLiked(userId)) {
-                    throw new IllegalStateException("You have already liked this menfess");
-                }
-                return menfes.tambahLike(userId);
-            }
+    @Transactional
+    public int likeMenfess(int id, User user) {
+        Menfes menfes = menfesRepository.findById(id).orElse(null);
+        if (menfes != null) {
+            int currentLikes = menfes.tambahLike(user);
+            menfesRepository.save(menfes);
+            return currentLikes;
         }
-        throw new IllegalStateException("Menfess not found");
+        return 0;
     }
 
+    @Transactional
     public boolean komenMenfes(int id, Komentar komentar) {
-        for (Menfes menfes : menfessList) {
-            if (menfes.getID() == id) {
-                menfes.addKomentar(komentar);
-                return true;
-            }
+        Menfes menfes = menfesRepository.findById(id).orElse(null);
+        if (menfes != null) {
+            komentar.setMenfes(menfes);
+            komentarRepository.save(komentar);
+            menfes.getKomentarList().add(komentar);
+            menfesRepository.save(menfes);
+            return true;
         }
         return false;
     }
 
     public List<Menfes> lihatMenfesTerbaru() {
-        List<Menfes> sortedList = new ArrayList<>(menfessList);
-        sortedList.sort((m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));
-        return sortedList;
+        return menfesRepository.findAllByOrderByCreatedAtDesc();
     }
 
     public List<Menfes> lihatMenfesPopuler() {
-        List<Menfes> sortedList = new ArrayList<>(menfessList);
-        sortedList.sort((m1, m2) -> {
-            int score1 = (m1.getLikes() * 2) + m1.getKomentarList().size();
-            int score2 = (m2.getLikes() * 2) + m2.getKomentarList().size();
-            int scoreComparison = Integer.compare(score2, score1); // descending
-            if (scoreComparison != 0) {
-                return scoreComparison;
-            }
-            // Jika skor sama, urutkan berdasarkan timestamp terbaru
-            return m2.getTimestamp().compareTo(m1.getTimestamp());
-        });
-        // Logging urutan hasil sorting
-        logger.info("[POPULAR SORT] Urutan hasil sorting:");
-        for (Menfes m : sortedList) {
-            logger.info("ID: {} | Likes: {} | Komentar: {} | Score: {}", m.getID(), m.getLikes(), m.getKomentarList().size(), (m.getLikes()*2)+m.getKomentarList().size());
-        }
-        return sortedList;
+        return menfesRepository.findAllOrderByPopularity();
     }
 
     public List<String> getTrendingHashtags() {
         Map<String, Integer> hashtagScores = new HashMap<>();
         
-        // Calculate score for each hashtag based on likes
-        for (Menfes menfes : menfessList) {
+        List<Menfes> allMenfess = menfesRepository.findAll();
+        for (Menfes menfes : allMenfess) {
             for (String hashtag : menfes.getHashtags()) {
                 hashtagScores.merge(hashtag, menfes.getLikes(), Integer::sum);
             }
         }
         
-        // Sort hashtags by score
         return hashtagScores.entrySet().stream()
             .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-            .limit(8) // Get top 8 trending hashtags
+            .limit(8)
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
     }
 
     public List<Menfes> lihatMenfesSaya(String username) {
-        List<Menfes> result = new ArrayList<>();
-        for (Menfes m : menfessList) {
-            if (m.getPengirim() != null && m.getPengirim().getUsername().equals(username)) {
-                result.add(m);
-            }
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            return menfesRepository.findByPengirim(user);
         }
-        // Urutkan dari terbaru
-        result.sort((m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()));
-        return result;
+        return new ArrayList<>();
+    }
+
+    public Komentar getKomentarById(int id) {
+        return komentarRepository.findById(id).orElse(null);
     }
 } 

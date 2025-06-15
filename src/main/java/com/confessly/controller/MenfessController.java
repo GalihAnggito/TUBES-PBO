@@ -61,13 +61,12 @@ public class MenfessController {
             return ResponseEntity.badRequest().body("Please login first to like a menfess");
         }
 
-        // Verify user is still logged in
         if (!authService.isUserLoggedIn(user)) {
             return ResponseEntity.badRequest().body("Your session has expired. Please login again.");
         }
 
         try {
-            int likes = menfesService.likeMenfes(id, user.getId());
+            int likes = menfesService.likeMenfess(id, user);
             return ResponseEntity.ok(likes);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -80,30 +79,40 @@ public class MenfessController {
         if (user == null) {
             return ResponseEntity.badRequest().body("Please login first to comment");
         }
-        
-        Komentar komentar = new Komentar(
-            (int) (Math.random() * 1000),
-            request.getContent(),
-            user,
-            null // Will be set by service
-        );
-        boolean success = menfesService.komenMenfes(id, komentar);
-        if (success) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("comment", komentar);
-            response.put("user", Map.of(
-                "id", user.getId(),
-                "username", user.getUsername(),
-                "profilePicture", user.getProfilePicture()
-            ));
-            return ResponseEntity.ok(response);
+
+        if (!authService.isUserLoggedIn(user)) {
+            return ResponseEntity.badRequest().body("Your session has expired. Please login again.");
         }
-        return ResponseEntity.badRequest().body("Failed to add comment");
+
+        try {
+            Komentar komentar = new Komentar();
+            komentar.setIsi(request.getContent());
+            komentar.setPengirim(user);
+            boolean success = menfesService.komenMenfes(id, komentar);
+            if (success) {
+                Komentar savedKomentar = menfesService.getKomentarById(komentar.getId());
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("comment", savedKomentar);
+                response.put("user", Map.of(
+                    "id", user.getId(),
+                    "username", user.getUsername(),
+                    "profilePicture", user.getProfilePicture()
+                ));
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.badRequest().body("Failed to add comment");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteMenfess(@PathVariable int id, @RequestBody User user) {
+    public ResponseEntity<Boolean> deleteMenfess(@PathVariable int id, @RequestBody LoginRequest request) {
+        User user = authService.login(request.getUsername(), request.getPassword());
+        if (user == null) {
+            return ResponseEntity.badRequest().body(false);
+        }
         boolean success = menfesService.deleteMenfes(id, user);
         return ResponseEntity.ok(success);
     }

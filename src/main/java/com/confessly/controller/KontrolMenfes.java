@@ -21,23 +21,21 @@ public class KontrolMenfes {
         return service.deleteMenfes(id, user);
     }
 
-    public int likeMenfes(int id, int userId) {
-        return service.likeMenfes(id, userId);
+    public int likeMenfes(int id, User user) {
+        return service.likeMenfess(id, user);
     }
 
     public boolean komenMenfes(int id, String isi, User user) {
         Menfes menfes = service.lihatMenfesTerbaru().stream()
-                .filter(m -> m.getID() == id)
+                .filter(m -> m.getId() == id)
                 .findFirst()
                 .orElse(null);
 
         if (menfes != null) {
-            Komentar komentar = new Komentar(
-                (int) (Math.random() * 1000),
-                isi,
-                user,
-                menfes
-            );
+            Komentar komentar = new Komentar();
+            komentar.setIsi(isi);
+            komentar.setPengirim(user);
+            komentar.setMenfes(menfes);
             return service.komenMenfes(id, komentar);
         }
         return false;
