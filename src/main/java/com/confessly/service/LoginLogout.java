@@ -1,78 +1,57 @@
 package com.confessly.service;
 
 import com.confessly.model.User;
+import com.confessly.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class LoginLogout {
-    private static List<User> users = new ArrayList<>();
-    private static int nextUserId = 1;
+    private final UserRepository userRepository;
 
-    static {
-        // Tambahkan user default admin
-        users.add(new User(nextUserId++, "admin", "123", "admin"));
-        // Tambahkan user default user
-        users.add(new User(nextUserId++, "user", "123", "user"));
+    @Autowired
+    public LoginLogout(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public User login(String username, String password) {
-        for (User user : users) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                return user;
-            }
+        User user = userRepository.findByUsername(username);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
         }
         return null;
     }
 
     public boolean logout(User user) {
-        if (user != null) {
-            // In a real application, this would handle session cleanup
-            return true;
-        }
-        return false;
+        // Dengan JPA, logout biasanya tidak memerlukan interaksi langsung dengan DB
+        // Ini lebih ke pengelolaan sesi di sisi client/Spring Security
+        return true; // Asumsikan logout berhasil di sisi klien
     }
 
     public User register(String username, String password) {
-        // Check if username already exists
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return null;
-            }
+        if (userRepository.existsByUsername(username)) {
+            return null; // Username sudah ada
         }
 
-        // Create new user
-        User newUser = new User(nextUserId++, username, password, "user");
-        users.add(newUser);
-        return newUser;
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setPassword(password);
+        newUser.setRole("user"); // Default role user
+        return userRepository.save(newUser);
     }
 
     public boolean isUserLoggedIn(User user) {
-        if (user == null) return false;
-        for (User u : users) {
-            if (u.getId() == user.getId() && u.getUsername().equals(user.getUsername())) {
-                return true;
-            }
-        }
-        return false;
+        if (user == null || user.getId() == 0) return false; // User tidak valid atau belum memiliki ID dari DB
+        // Periksa apakah user masih ada di database berdasarkan ID
+        // Atau bisa juga membandingkan dengan username dan password (jika disimpan di sesi)
+        return userRepository.findById(user.getId()).isPresent();
     }
 
     public User getUserById(int userId) {
-        for (User user : users) {
-            if (user.getId() == userId) {
-                return user;
-            }
-        }
-        return null;
+        return userRepository.findById(userId).orElse(null);
     }
 
     public boolean isUsernameTaken(String username) {
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return true;
-            }
-        }
-        return false;
+        return userRepository.existsByUsername(username);
     }
 } 

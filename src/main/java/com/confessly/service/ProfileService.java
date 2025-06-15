@@ -1,6 +1,7 @@
 package com.confessly.service;
 
 import com.confessly.model.User;
+import com.confessly.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -12,10 +13,12 @@ import java.util.UUID;
 @Service
 public class ProfileService {
     private final LoginLogout loginLogout;
+    private final UserRepository userRepository;
     private final String UPLOAD_DIR = "uploads/profile-pictures/";
 
-    public ProfileService(LoginLogout loginLogout) {
+    public ProfileService(LoginLogout loginLogout, UserRepository userRepository) {
         this.loginLogout = loginLogout;
+        this.userRepository = userRepository;
         // Create upload directory if it doesn't exist
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
@@ -32,7 +35,7 @@ public class ProfileService {
                 return null;
             }
             user.setUsername(newUsername);
-            return user;
+            return userRepository.save(user);
         }
         return null;
     }
@@ -56,7 +59,7 @@ public class ProfileService {
                 
                 // Update user's profile picture
                 user.setProfilePicture(filename);
-                return user;
+                return userRepository.save(user);
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;

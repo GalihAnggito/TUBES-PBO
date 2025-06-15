@@ -1,18 +1,36 @@
 package com.confessly.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    
+    @Column(unique = true, nullable = false)
     private String username;
+    
+    @Column(nullable = false)
     private String password;
+    
+    @Column(nullable = false)
     private String role;
+    
+    @Column(name = "profile_picture")
     private String profilePicture;
+
+    public User() {
+        this.profilePicture = "default.png";
+    }
 
     public User(int id, String username, String password, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
-        this.profilePicture = "default.png"; // Default profile picture
+        this.profilePicture = "default.png";
     }
 
     public int getId() {
