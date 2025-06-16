@@ -453,26 +453,6 @@
             margin-top: 3px;
         }
 
-        /* Trending Topics */
-        .trending-topics {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .topic-tag {
-            padding: 5px 10px;
-            background-color: #f0f2f5;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .topic-tag:hover {
-            background-color: #e0e0e0;
-        }
-
         /* Footer */
         footer {
             background-color: var(--dark-color);
@@ -1089,13 +1069,6 @@
                             <div>Violations may result in account suspension</div>
                         </li>
                     </ul>
-                </div>
-            </div>
-            <!-- Trending Topics Card -->
-            <div class="sidebar-card">
-                <div class="sidebar-header">Trending Topic</div>
-                <div class="sidebar-content">
-                    <div class="trending-topics" id="trendingTopics"></div>
                 </div>
             </div>
         </div>
@@ -1758,45 +1731,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         setupFilters();
         fetchMenfess();
-        fetchTrendingHashtags();
     });
-
-    // Mengambil hashtag trending
-    async function fetchTrendingHashtags() {
-        try {
-            const response = await fetch('/api/menfess/trending');
-            const hashtags = await response.json();
-            updateTrendingTopics(hashtags);
-        } catch (error) {
-            console.error('Error saat mengambil hashtag trending:', error);
-        }
-    }
-
-    // Memperbarui topik trending di UI
-    function updateTrendingTopics(hashtags) {
-        const trendingTopicsContainer = document.querySelector('.trending-topics');
-        if (hashtags.length === 0) {
-            trendingTopicsContainer.innerHTML = '<div class="no-trends">Belum ada topik trending</div>';
-            return;
-        }
-        
-        trendingTopicsContainer.innerHTML = hashtags.map(hashtag => 
-            `<div class="topic-tag" onclick="filterByHashtag('${hashtag}')">${hashtag}</div>`
-        ).join('');
-    }
-
-    // Filter post berdasarkan hashtag
-    function filterByHashtag(hashtag) {
-        const posts = document.querySelectorAll('.menfess-post');
-        posts.forEach(post => {
-            const content = post.querySelector('.post-content').textContent.toLowerCase();
-            if (content.includes(hashtag.toLowerCase())) {
-                post.style.display = 'block';
-            } else {
-                post.style.display = 'none';
-            }
-        });
-    }
 
     // Additional Modal Elements
     const rulesModal = document.getElementById('rules-modal');
@@ -2057,14 +1992,6 @@
             }
         }
 
-        // Trending Topic
-        async function loadTrendingTopics() {
-            const res = await fetch('/api/menfess/trending');
-            const hashtags = await res.json();
-            const container = document.getElementById('trendingTopics');
-            container.innerHTML = hashtags.map(tag => `<span class="topic-tag">${tag}</span>`).join('');
-        }
-
         function updateProfileDisplay() {
             const user = JSON.parse(localStorage.getItem('currentUser'));
             const profileMenu = document.querySelector('.profile-menu');
@@ -2100,7 +2027,6 @@
 
         window.onload = function() {
             updateProfileDisplay();
-            loadTrendingTopics();
             showAllMenfess();
         };
 
