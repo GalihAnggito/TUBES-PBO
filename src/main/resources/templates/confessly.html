@@ -899,6 +899,98 @@
             background-color: var(--primary-color);
             color: white;
         }
+
+        /* Add these styles to your existing CSS */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .popup-body {
+            max-height: calc(80vh - 100px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .popup-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .popup-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .popup-body::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .popup-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-popup:hover {
+            color: #333;
+        }
+
+        .popup h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-right: 30px;
+        }
+
+        .popup h3 {
+            color: var(--primary-color);
+            margin: 20px 0 10px;
+        }
+
+        .popup p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .popup .rules-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .popup .rules-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .popup .rules-list li:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -1024,9 +1116,9 @@
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="#">Home</a></li>
-                        <li><a href="#rules">Rules</a></li>
-                        <li><a href="#about-confessly">About Confessly</a></li>
-                        <li><a href="#privacy-policy">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showRulesPopup(); return false;">Rules</a></li>
+                        <li><a href="#" onclick="showAboutPopup(); return false;">About Confessly</a></li>
+                        <li><a href="#" onclick="showPrivacyPopup(); return false;">Privacy Policy</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -1211,6 +1303,58 @@
             <div class="edit-modal-footer">
                 <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
                 <button class="save-btn" onclick="saveEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add these popup divs before the closing body tag -->
+    <div id="rulesPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('rulesPopup')">&times;</span>
+            <h2>Rules</h2>
+            <div class="popup-body">
+                <ul class="rules-list">
+                    <li>Keep your messages respectful and kind</li>
+                    <li>No hate speech, bullying, or harassment</li>
+                    <li>No spamming or excessive posting</li>
+                    <li>No sharing of personal information</li>
+                    <li>Violations may result in account suspension</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="aboutPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('aboutPopup')">&times;</span>
+            <h2>About Confessly</h2>
+            <div class="popup-body">
+                <p>Confessly is a platform designed to provide a safe and anonymous space for people to share their thoughts, feelings, and experiences. Our mission is to foster meaningful connections and open dialogue while maintaining user privacy and security.</p>
+                <p>Founded in 2025, Confessly has grown into a community where people can express themselves freely without fear of judgment. We believe in the power of anonymous sharing to create understanding and empathy among our users.</p>
+                <p>Our team is dedicated to maintaining a positive and supportive environment for all users. We continuously work to improve our platform and ensure the best experience for our community.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="privacyPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup" onclick="closePopup('privacyPopup')">&times;</span>
+            <h2>Privacy Policy</h2>
+            <div class="popup-body">
+                <h3>1. Information We Collect</h3>
+                <p>We collect information that you provide directly to us, including when you create an account, post content, or communicate with other users.</p>
+                
+                <h3>2. How We Use Your Information</h3>
+                <p>We use the information we collect to provide, maintain, and improve our services, to develop new features, and to protect Confessly and our users.</p>
+                
+                <h3>3. Information Sharing</h3>
+                <p>We do not share your personal information with third parties except as described in this privacy policy.</p>
+                
+                <h3>4. Data Security</h3>
+                <p>We take reasonable measures to help protect your personal information from loss, theft, misuse, unauthorized access, disclosure, alteration, and destruction.</p>
+                
+                <h3>5. Your Rights</h3>
+                <p>You have the right to access, correct, or delete your personal information. You can also object to our processing of your personal information.</p>
             </div>
         </div>
     </div>
@@ -2174,6 +2318,30 @@
                 event.target.style.display = 'none';
             }
         }
+
+    // Add these functions to your existing JavaScript
+    function showRulesPopup() {
+        document.getElementById('rulesPopup').style.display = 'flex';
+    }
+
+    function showAboutPopup() {
+        document.getElementById('aboutPopup').style.display = 'flex';
+    }
+
+    function showPrivacyPopup() {
+        document.getElementById('privacyPopup').style.display = 'flex';
+    }
+
+    function closePopup(popupId) {
+        document.getElementById(popupId).style.display = 'none';
+    }
+
+    // Close popup when clicking outside
+    window.onclick = function(event) {
+        if (event.target.classList.contains('popup')) {
+            event.target.style.display = 'none';
+        }
+    }
 </script>
 </body>
 </html> 
