@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "menfes")
@@ -102,10 +103,12 @@ public class Menfes {
     }
 
     public int tambahLike(User user) {
-        if (!likedUsers.contains(user)) {
+        if (likedUsers.contains(user)) {
+            this.likes--;
+            likedUsers.remove(user);
+        } else {
             this.likes++;
             likedUsers.add(user);
-            return this.likes;
         }
         return this.likes;
     }
@@ -123,5 +126,19 @@ public class Menfes {
             }
         }
         return hashtags;
+    }
+
+    public List<User> getLikedUsers() {
+        return likedUsers;
+    }
+
+    public List<Integer> getLikedUserIds() {
+        return likedUsers.stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
+    }
+
+    public void setLikedUsers(List<User> likedUsers) {
+        this.likedUsers = likedUsers;
     }
 } 
