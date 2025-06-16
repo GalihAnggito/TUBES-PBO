@@ -4,7 +4,8 @@ import com.confessly.model.Menfes;
 import com.confessly.model.User;
 import com.confessly.model.Komentar;
 import com.confessly.service.MenfesService;
-import com.confessly.service.LoginLogout;
+import com.confessly.service.AuthService;
+import com.confessly.dto.LikeRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,16 +22,16 @@ public class MenfessController {
     private MenfesService menfesService;
 
     @Autowired
-    private LoginLogout authService;
+    private AuthService authService;
 
     @GetMapping
-    public List<Menfes> getAllMenfess() {
-        return menfesService.lihatMenfesTerbaru();
+    public ResponseEntity<?> getAllMenfess() {
+        return ResponseEntity.ok(menfesService.lihatMenfesTerbaru());
     }
 
     @GetMapping("/popular")
-    public List<Menfes> getPopularMenfess() {
-        return menfesService.lihatMenfesPopuler();
+    public ResponseEntity<?> getPopularMenfess() {
+        return ResponseEntity.ok(menfesService.lihatMenfesPopuler());
     }
 
     @PostMapping
@@ -151,6 +152,11 @@ public class MenfessController {
     public List<Menfes> getMyMenfess(@RequestParam String username) {
         return menfesService.lihatMenfesSaya(username);
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getUserMenfess(@PathVariable int userId) {
+        return ResponseEntity.ok(menfesService.getMenfessByUserId(userId));
+    }
 }
 
 class MenfesRequest {
@@ -211,13 +217,4 @@ class CommentRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-}
-
-class LikeRequest {
-    private String username;
-    private String password;
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
 } 

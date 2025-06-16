@@ -129,4 +129,8 @@ public class MenfesService {
         return menfesRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Menfess not found"));
     }
+
+    public List<Menfes> getMenfessByUserId(int userId) {
+        return menfesRepository.findByPengirimId(userId);
+    }
 } 

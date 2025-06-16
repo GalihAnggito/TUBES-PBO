@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -19,6 +20,8 @@ public class Komentar {
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+    
+    private int likes;
     
     @ManyToOne
     @JoinColumn(name = "pengirim_id")
@@ -47,6 +50,7 @@ public class Komentar {
 
     public Komentar() {
         this.createdAt = new Date();
+        this.likes = 0;
     }
 
     public Komentar(int id, String isi, User pengirim, Menfes menfes) {
@@ -55,6 +59,7 @@ public class Komentar {
         this.pengirim = pengirim;
         this.menfes = menfes;
         this.createdAt = new Date();
+        this.likes = 0;
     }
 
     public int getId() {
@@ -79,6 +84,14 @@ public class Komentar {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 
     public User getPengirim() {
@@ -122,10 +135,14 @@ public class Komentar {
     }
 
     public int tambahLike(User user) {
-        if (!likedUsers.contains(user)) {
+        if (likedUsers.contains(user)) {
+            this.likes--;
+            likedUsers.remove(user);
+        } else {
+            this.likes++;
             likedUsers.add(user);
         }
-        return likedUsers.size();
+        return this.likes;
     }
 
     public boolean hasLiked(User user) {
@@ -135,5 +152,11 @@ public class Komentar {
     public void addReply(Komentar reply) {
         reply.setParent(this);
         this.replies.add(reply);
+    }
+
+    public List<Integer> getLikedUserIds() {
+        return likedUsers.stream()
+                .map(User::getId)
+                .collect(Collectors.toList());
     }
 } 

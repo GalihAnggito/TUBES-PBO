@@ -15,4 +15,6 @@ public interface MenfesRepository extends JpaRepository<Menfes, Integer> {
     List<Menfes> findAllOrderByPopularity();
 
     List<Menfes> findByPengirim(User pengirim);
+    
+    List<Menfes> findByPengirimId(int userId);
 } 
