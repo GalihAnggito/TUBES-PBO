@@ -2,6 +2,8 @@ package com.confessly.controller;
 
 import com.confessly.model.User;
 import com.confessly.service.LoginLogout;
+import com.confessly.exception.UsernameAlreadyExistsException;
+import com.confessly.exception.BadCredentialsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,31 +16,55 @@ import java.util.Map;
 public class AuthController {
 
     @Autowired
-    private LoginLogout loginLogout;
+    private LoginLogout authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        if (request.getUsername() == null || request.getUsername().trim().isEmpty() ||
+            request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Username and password are required");
+        }
+
         try {
-            User user = loginLogout.register(request.getUsername(), request.getPassword());
-            return ResponseEntity.ok(user);
-        } catch (IllegalStateException e) {
+            User user = authService.register(request.getUsername(), request.getPassword());
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("profilePicture", user.getProfilePicture());
+            response.put("role", user.getRole().getRoleName());
+            return ResponseEntity.ok(response);
+        } catch (UsernameAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("An unexpected error occurred: " + e.getMessage());
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        User user = loginLogout.login(request.getUsername(), request.getPassword());
-        if (user != null) {
-            return ResponseEntity.ok(user);
+        try {
+            User user = authService.login(request.getUsername(), request.getPassword());
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("profilePicture", user.getProfilePicture());
+            response.put("role", user.getRole().getRoleName());
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("An unexpected error occurred: " + e.getMessage());
         }
-        return ResponseEntity.badRequest().body("Invalid username or password");
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
-        loginLogout.logout(request.getUsername());
-        return ResponseEntity.ok().build();
+        try {
+            authService.logout(request.getUsername());
+            return ResponseEntity.ok().body("Logged out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Logout failed: " + e.getMessage());
+        }
     }
 }
 

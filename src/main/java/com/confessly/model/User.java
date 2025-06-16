@@ -17,19 +17,20 @@ public class User {
     @Column(nullable = false)
     private String password;
     
-    private String role = "user";
+    private String role;
     
     @Column(name = "profile_picture")
     private String profilePicture;
 
     public User() {
         this.profilePicture = "default.png";
+        this.role = Role.USER_ROLE;
     }
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.role = "user";
+        this.role = Role.USER_ROLE;
         this.profilePicture = "default.png";
     }
 
@@ -57,12 +58,12 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public Role getRole() {
+        return new Role(this.role);
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRole(Role role) {
+        this.role = role.getRoleName();
     }
 
     public String getProfilePicture() {

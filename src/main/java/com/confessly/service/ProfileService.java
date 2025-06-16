@@ -2,6 +2,8 @@ package com.confessly.service;
 
 import com.confessly.model.User;
 import com.confessly.repository.UserRepository;
+import com.confessly.exception.ResourceNotFoundException;
+import com.confessly.exception.UsernameAlreadyExistsException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -29,20 +31,25 @@ public class ProfileService {
 
     public User updateUsername(int userId, String newUsername) {
         User user = loginLogout.getUserById(userId);
-        if (user != null) {
-            // Check if username is already taken
-            if (loginLogout.isUsernameTaken(newUsername)) {
-                return null;
-            }
-            user.setUsername(newUsername);
-            return userRepository.save(user);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with id " + userId);
         }
-        return null;
+        
+        // Check if username is already taken
+        if (userRepository.existsByUsername(newUsername)) {
+            throw new UsernameAlreadyExistsException("Username '" + newUsername + "' already exists");
+        }
+        user.setUsername(newUsername);
+        return userRepository.save(user);
     }
 
     public User updateProfilePicture(int userId, MultipartFile file) {
         User user = loginLogout.getUserById(userId);
-        if (user != null && file != null && !file.isEmpty()) {
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with id " + userId);
+        }
+        
+        if (file != null && !file.isEmpty()) {
             try {
                 // Generate unique filename
                 String filename = UUID.randomUUID().toString() + getFileExtension(file.getOriginalFilename());
@@ -61,11 +68,10 @@ public class ProfileService {
                 user.setProfilePicture(filename);
                 return userRepository.save(user);
             } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+                throw new RuntimeException("Failed to store profile picture", e);
             }
         }
-        return null;
+        return user;
     }
 
     private String getFileExtension(String filename) {

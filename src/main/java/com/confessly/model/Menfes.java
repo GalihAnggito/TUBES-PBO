@@ -3,23 +3,11 @@ package com.confessly.model;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "menfes")
-public class Menfes {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String isi;
-    
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-    
+public class Menfes extends Postingan {
     private int likes;
     
     @ManyToOne
@@ -38,40 +26,14 @@ public class Menfes {
     private List<User> likedUsers = new ArrayList<>();
 
     public Menfes() {
-        this.createdAt = new Date();
+        super();
         this.likes = 0;
     }
 
-    public Menfes(int id, String isi, User pengirim) {
-        this.id = id;
-        this.isi = isi;
+    public Menfes(String isi, User pengirim) {
+        super(isi);
         this.pengirim = pengirim;
-        this.createdAt = new Date();
         this.likes = 0;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getIsi() {
-        return isi;
-    }
-
-    public void setIsi(String isi) {
-        this.isi = isi;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
     }
 
     public int getLikes() {

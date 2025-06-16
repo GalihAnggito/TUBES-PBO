@@ -3,24 +3,12 @@ package com.confessly.model;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "komentar")
-public class Komentar {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String isi;
-    
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-    
+public class Komentar extends Postingan {
     private int likes;
     
     @ManyToOne
@@ -49,41 +37,15 @@ public class Komentar {
     private Komentar parent;
 
     public Komentar() {
-        this.createdAt = new Date();
+        super();
         this.likes = 0;
     }
 
-    public Komentar(int id, String isi, User pengirim, Menfes menfes) {
-        this.id = id;
-        this.isi = isi;
+    public Komentar(String isi, User pengirim, Menfes menfes) {
+        super(isi);
         this.pengirim = pengirim;
         this.menfes = menfes;
-        this.createdAt = new Date();
         this.likes = 0;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getIsi() {
-        return isi;
-    }
-
-    public void setIsi(String isi) {
-        this.isi = isi;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
     }
 
     public int getLikes() {
