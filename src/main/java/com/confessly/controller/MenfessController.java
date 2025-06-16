@@ -67,7 +67,10 @@ public class MenfessController {
 
         try {
             int likes = menfesService.likeMenfess(id, user);
-            return ResponseEntity.ok(likes);
+            Map<String, Object> response = new HashMap<>();
+            response.put("likes", likes);
+            response.put("liked", menfesService.getMenfess(id).hasLiked(user));
+            return ResponseEntity.ok(response);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

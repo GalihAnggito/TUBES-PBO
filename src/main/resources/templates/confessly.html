@@ -1276,54 +1276,54 @@
     }
 
     async function likeMenfess(id) {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                showModal('loginModal');
-                return;
-            }
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) {
+            showModal('loginModal');
+            return;
+        }
 
         try {
             const response = await fetch(`/api/menfess/${id}/like`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: currentUser.username,
-                        password: currentUser.password
-                    })
-                });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: currentUser.username,
+                    password: currentUser.password
+                })
+            });
 
             if (response.ok) {
-                    const likes = await response.json();
-                    const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action`);
-                    const likeCount = likeElement.querySelector('span');
-                    const heartIcon = likeElement.querySelector('i');
+                const result = await response.json();
+                const likeElement = document.querySelector(`[data-menfess-id="${id}"] .post-action`);
+                const likeCount = likeElement.querySelector('span');
+                const heartIcon = likeElement.querySelector('i');
 
-                    // Update like count
-                    likeCount.textContent = `${likes} Likes`;
+                // Update like count
+                likeCount.textContent = `${result.likes} Likes`;
 
-                    // Toggle liked state
-                    if (likeElement.classList.contains('liked')) {
-                        likeElement.classList.remove('liked');
-                        heartIcon.classList.remove('fas');
-                        heartIcon.classList.add('far');
-                    } else {
-                        likeElement.classList.add('liked');
+                // Update liked state
+                if (result.liked) {
+                    likeElement.classList.add('liked');
                     heartIcon.classList.remove('far');
                     heartIcon.classList.add('fas');
-                }
                 } else {
-                    const error = await response.text();
-                    if (error.includes("session has expired")) {
-                        localStorage.removeItem('currentUser');
-                        showModal('loginModal');
-                    }
-                    alert(error);
+                    likeElement.classList.remove('liked');
+                    heartIcon.classList.remove('fas');
+                    heartIcon.classList.add('far');
+                }
+            } else {
+                const error = await response.text();
+                if (error.includes("session has expired")) {
+                    localStorage.removeItem('currentUser');
+                    showModal('loginModal');
+                }
+                alert(error);
             }
         } catch (error) {
-                console.error('Error liking menfess:', error);
-                alert('An error occurred while liking the menfess.');
+            console.error('Error liking menfess:', error);
+            alert('An error occurred while liking the menfess.');
         }
     }
 
@@ -1396,54 +1396,57 @@
             return;
         }
             
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         
-        menfessList.innerHTML = menfess.map(m => `
-            <div class="menfess-post" data-menfess-id="${m.id}">
-                <div class="post-header">
-                    <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
-                    <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
-                </div>
-                <div class="post-content">
-                    <p>${m.isi || m.content}</p>
-                </div>
-                <div class="post-actions">
-                        <div class="post-action ${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
-                            <i class="${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'fas' : 'far'} fa-heart"></i>
-                        <span>${m.likes || 0} Likes</span>
+        menfessList.innerHTML = menfess.map(m => {
+            const isLiked = currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id);
+            return `
+                <div class="menfess-post" data-menfess-id="${m.id}">
+                    <div class="post-header">
+                        <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                        <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
                     </div>
+                    <div class="post-content">
+                        <p>${m.isi || m.content}</p>
+                    </div>
+                    <div class="post-actions">
+                        <div class="post-action ${isLiked ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
+                            <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+                            <span>${m.likes || 0} Likes</span>
+                        </div>
                         <div class="post-action" onclick="toggleComments(${m.id})">
-                        <i class="far fa-comment"></i>
-                        <span>${(m.komentarList || []).length} Komentar</span>
-                    </div>
+                            <i class="far fa-comment"></i>
+                            <span>${(m.komentarList || []).length} Komentar</span>
+                        </div>
                         ${currentUser && (currentUser.id === m.pengirim.id || currentUser.role === 'admin') ? `
                         <div class="post-action edit" onclick="showEditModal(${m.id}, '${(m.isi || m.content).replace(/'/g, "\\'")}')">
                             <i class="fas fa-edit"></i>
                             <span>Edit</span>
-                    </div>
+                        </div>
                         <div class="post-action delete" onclick="deleteMenfess(${m.id})">
                             <i class="fas fa-trash"></i>
                             <span>Delete</span>
-                </div>
+                        </div>
                         ` : ''}
                     </div>
                     <div class="comments-section" style="display: none;">
-                    ${(m.komentarList || []).map(c => `
-                        <div class="comment">
+                        ${(m.komentarList || []).map(c => `
+                            <div class="comment">
                                 <div class="comment-header">
                                     <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
                                     <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
                                 </div>
                                 <div class="comment-text">${c.isi || c.content}</div>
-                        </div>
-                    `).join('')}
-                    <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
-                        <input type="text" class="comment-input" placeholder="Tulis komentar...">
-                        <button type="submit" class="comment-submit">Kirim</button>
-                    </form>
+                            </div>
+                        `).join('')}
+                        <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                            <input type="text" class="comment-input" placeholder="Tulis komentar...">
+                            <button type="submit" class="comment-submit">Kirim</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function updateLikeCount(id, likes) {
@@ -1719,52 +1722,55 @@
 
                 const currentUser = JSON.parse(localStorage.getItem('currentUser'));
                 
-                list.innerHTML = data.map(m => `
-                    <div class="menfess-post" data-menfess-id="${m.id}">
-                        <div class="post-header">
-                            <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
-                            <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
-                        </div>
-                        <div class="post-content">
-                            <p>${m.isi || m.content}</p>
-                        </div>
-                        <div class="post-actions">
-                            <div class="post-action ${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
-                                <i class="${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'fas' : 'far'} fa-heart"></i>
-                                <span>${m.likes || 0} Likes</span>
+                list.innerHTML = data.map(m => {
+                    const isLiked = currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id);
+                    return `
+                        <div class="menfess-post" data-menfess-id="${m.id}">
+                            <div class="post-header">
+                                <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                                <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
                             </div>
-                            <div class="post-action" onclick="toggleComments(${m.id})">
-                                <i class="far fa-comment"></i>
-                                <span>${(m.komentarList || []).length} Komentar</span>
+                            <div class="post-content">
+                                <p>${m.isi || m.content}</p>
                             </div>
-                            ${currentUser && (currentUser.id === m.pengirim.id || currentUser.role === 'admin') ? `
-                            <div class="post-action edit" onclick="showEditModal(${m.id}, '${(m.isi || m.content).replace(/'/g, "\\'")}')">
-                                <i class="fas fa-edit"></i>
-                                <span>Edit</span>
-                            </div>
-                            <div class="post-action delete" onclick="deleteMenfess(${m.id})">
-                                <i class="fas fa-trash"></i>
-                                <span>Delete</span>
-                            </div>
-                            ` : ''}
-                        </div>
-                        <div class="comments-section" style="display: none;">
-                            ${(m.komentarList || []).map(c => `
-                                <div class="comment">
-                                    <div class="comment-header">
-                                        <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
-                                        <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
-                                    </div>
-                                    <div class="comment-text">${c.isi || c.content}</div>
+                            <div class="post-actions">
+                                <div class="post-action ${isLiked ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
+                                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+                                    <span>${m.likes || 0} Likes</span>
                                 </div>
-                            `).join('')}
-                            <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
-                                <input type="text" class="comment-input" placeholder="Tulis komentar...">
-                                <button type="submit" class="comment-submit">Kirim</button>
-                            </form>
+                                <div class="post-action" onclick="toggleComments(${m.id})">
+                                    <i class="far fa-comment"></i>
+                                    <span>${(m.komentarList || []).length} Komentar</span>
+                                </div>
+                                ${currentUser && (currentUser.id === m.pengirim.id || currentUser.role === 'admin') ? `
+                                <div class="post-action edit" onclick="showEditModal(${m.id}, '${(m.isi || m.content).replace(/'/g, "\\'")}')">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Edit</span>
+                                </div>
+                                <div class="post-action delete" onclick="deleteMenfess(${m.id})">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Delete</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                            <div class="comments-section" style="display: none;">
+                                ${(m.komentarList || []).map(c => `
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
+                                            <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
+                                        </div>
+                                        <div class="comment-text">${c.isi || c.content}</div>
+                                    </div>
+                                `).join('')}
+                                <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                                    <input type="text" class="comment-input" placeholder="Tulis komentar...">
+                                    <button type="submit" class="comment-submit">Kirim</button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Error loading menfess:', error);
                 alert('Failed to load menfess. Please try again later.');
@@ -1885,52 +1891,55 @@
             const list = document.querySelector('.menfess-list');
             if (!list) return;
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            list.innerHTML = data.map(m => `
-                <div class="menfess-post" data-menfess-id="${m.id}">
-                    <div class="post-header">
-                        <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
-                        <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
-                    </div>
-                    <div class="post-content">
-                        <p>${m.isi || m.content}</p>
-                    </div>
-                    <div class="post-actions">
-                        <div class="post-action ${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
-                            <i class="${currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id) ? 'fas' : 'far'} fa-heart"></i>
-                            <span>${m.likes || 0} Likes</span>
+            list.innerHTML = data.map(m => {
+                const isLiked = currentUser && m.likedUserIds && m.likedUserIds.includes(currentUser.id);
+                return `
+                    <div class="menfess-post" data-menfess-id="${m.id}">
+                        <div class="post-header">
+                            <span class="post-id">#M${m.id.toString().padStart(3, '0')}</span>
+                            <span class="post-time">${formatTime(m.timestamp || m.createdAt || new Date())}</span>
                         </div>
-                        <div class="post-action" onclick="toggleComments(${m.id})">
-                            <i class="far fa-comment"></i>
-                            <span>${(m.komentarList || []).length} Komentar</span>
+                        <div class="post-content">
+                            <p>${m.isi || m.content}</p>
                         </div>
-                        ${currentUser && (currentUser.id === m.pengirim.id || currentUser.role === 'admin') ? `
-                        <div class="post-action edit" onclick="showEditModal(${m.id}, '${(m.isi || m.content).replace(/'/g, "\\'")}')">
-                            <i class="fas fa-edit"></i>
-                            <span>Edit</span>
-                        </div>
-                        <div class="post-action delete" onclick="deleteMenfess(${m.id})">
-                            <i class="fas fa-trash"></i>
-                            <span>Delete</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                    <div class="comments-section" style="display: none;">
-                        ${(m.komentarList || []).map(c => `
-                            <div class="comment">
-                                <div class="comment-header">
-                                    <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
-                                    <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
-                                </div>
-                                <div class="comment-text">${c.isi || c.content}</div>
+                        <div class="post-actions">
+                            <div class="post-action ${isLiked ? 'liked' : ''}" onclick="likeMenfess(${m.id})">
+                                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+                                <span>${m.likes || 0} Likes</span>
                             </div>
-                        `).join('')}
-                        <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
-                            <input type="text" class="comment-input" placeholder="Tulis komentar...">
-                            <button type="submit" class="comment-submit">Kirim</button>
-                        </form>
+                            <div class="post-action" onclick="toggleComments(${m.id})">
+                                <i class="far fa-comment"></i>
+                                <span>${(m.komentarList || []).length} Komentar</span>
+                            </div>
+                            ${currentUser && (currentUser.id === m.pengirim.id || currentUser.role === 'admin') ? `
+                            <div class="post-action edit" onclick="showEditModal(${m.id}, '${(m.isi || m.content).replace(/'/g, "\\'")}')">
+                                <i class="fas fa-edit"></i>
+                                <span>Edit</span>
+                            </div>
+                            <div class="post-action delete" onclick="deleteMenfess(${m.id})">
+                                <i class="fas fa-trash"></i>
+                                <span>Delete</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="comments-section" style="display: none;">
+                            ${(m.komentarList || []).map(c => `
+                                <div class="comment">
+                                    <div class="comment-header">
+                                        <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
+                                        <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
+                                    </div>
+                                    <div class="comment-text">${c.isi || c.content}</div>
+                                </div>
+                            `).join('')}
+                            <form class="comment-form" onsubmit="handleCommentSubmit(event, ${m.id})">
+                                <input type="text" class="comment-input" placeholder="Tulis komentar...">
+                                <button type="submit" class="comment-submit">Kirim</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         async function deleteMenfess(id) {

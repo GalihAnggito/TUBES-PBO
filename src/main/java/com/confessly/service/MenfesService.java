@@ -124,4 +124,9 @@ public class MenfesService {
     public Komentar getKomentarById(int id) {
         return komentarRepository.findById(id).orElse(null);
     }
+
+    public Menfes getMenfess(int id) {
+        return menfesRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Menfess not found"));
+    }
 } 
