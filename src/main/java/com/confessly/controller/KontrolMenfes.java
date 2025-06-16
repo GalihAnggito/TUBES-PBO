@@ -27,7 +27,7 @@ public class KontrolMenfes {
 
     public boolean komenMenfes(int id, String isi, User user) {
         Menfes menfes = service.lihatMenfesTerbaru().stream()
-                .filter(m -> m.getId() == id)
+                .filter(m -> m.getID() == id)
                 .findFirst()
                 .orElse(null);
 

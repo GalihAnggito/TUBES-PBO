@@ -1,14 +1,25 @@
 package com.confessly.model;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
-public class Postingan {
-    private int id;
-    private String isi;
-    private LocalDateTime createdAt;
+@MappedSuperclass // Menandai Postingan sebagai superclass yang dipetakan
+public abstract class Postingan { // Mengubah kelas menjadi abstract
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected int id;
+    
+    @Column(nullable = false)
+    protected String isi;
+    
+    @Column(name = "created_at", nullable = false)
+    protected LocalDateTime createdAt;
 
-    public Postingan(int id, String isi) {
-        this.id = id;
+    public Postingan() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Postingan(String isi) { // Menghapus id dari konstruktor karena digenerate otomatis
         this.isi = isi;
         this.createdAt = LocalDateTime.now();
     }

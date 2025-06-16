@@ -1,23 +1,43 @@
 package com.confessly.model;
 
 public class Role {
-    private String admin;
-    private String user;
+     public static final String ADMIN_ROLE = "admin";
+    public static final String USER_ROLE = "user";
 
-    public Role() {
-        this.admin = "admin";
-        this.user = "user";
+    private String roleName;
+
+    public Role(String roleName) {
+        if (!validRole(roleName)) {
+            throw new IllegalArgumentException("Invalid role: " + roleName);
+        }
+        this.roleName = roleName;
     }
 
-    public String getRoleAdmin() {
-        return admin;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public String getRoleUser() {
-        return user;
+    public void setRoleName(String roleName) {
+        if (!validRole(roleName)) {
+            throw new IllegalArgumentException("Invalid role: " + roleName);
+        }
+        this.roleName = roleName;
     }
 
-    public boolean validRole(String role) {
-        return role.equals(admin) || role.equals(user);
+    public static String getRoleAdmin() {
+        return ADMIN_ROLE;
+    }
+
+    public static String getRoleUser() {
+        return USER_ROLE;
+    }
+
+    public static boolean validRole(String role) {
+        return role != null && (role.equalsIgnoreCase(ADMIN_ROLE) || role.equalsIgnoreCase(USER_ROLE));
+    }
+
+    @Override
+    public String toString() {
+        return roleName;
     }
 } 
