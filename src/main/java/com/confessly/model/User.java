@@ -1,6 +1,8 @@
 package com.confessly.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -15,8 +17,7 @@ public class User {
     @Column(nullable = false)
     private String password;
     
-    @Column(nullable = false)
-    private String role;
+    private String role = "user";
     
     @Column(name = "profile_picture")
     private String profilePicture;
@@ -25,11 +26,10 @@ public class User {
         this.profilePicture = "default.png";
     }
 
-    public User(int id, String username, String password, String role) {
-        this.id = id;
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.role = role;
+        this.role = "user";
         this.profilePicture = "default.png";
     }
 

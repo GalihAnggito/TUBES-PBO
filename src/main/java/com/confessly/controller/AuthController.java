@@ -14,47 +14,31 @@ import java.util.Map;
 public class AuthController {
 
     @Autowired
-    private LoginLogout authService;
+    private LoginLogout loginLogout;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        if (request.getUsername() == null || request.getUsername().trim().isEmpty() ||
-            request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Username and password are required");
+        try {
+            User user = loginLogout.register(request.getUsername(), request.getPassword());
+            return ResponseEntity.ok(user);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        User user = authService.register(request.getUsername(), request.getPassword());
-        if (user != null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("username", user.getUsername());
-            response.put("profilePicture", user.getProfilePicture());
-            return ResponseEntity.ok(response);
-        }
-        return ResponseEntity.badRequest().body("Username already exists");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        User user = authService.login(request.getUsername(), request.getPassword());
+        User user = loginLogout.login(request.getUsername(), request.getPassword());
         if (user != null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("username", user.getUsername());
-            response.put("profilePicture", user.getProfilePicture());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(user);
         }
         return ResponseEntity.badRequest().body("Invalid username or password");
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
-        User user = new User(0, request.getUsername(), "", "user");
-        boolean success = authService.logout(user);
-        if (success) {
-            return ResponseEntity.ok().body("Logged out successfully");
-        }
-        return ResponseEntity.badRequest().body("Logout failed");
+        loginLogout.logout(request.getUsername());
+        return ResponseEntity.ok().build();
     }
 }
 
