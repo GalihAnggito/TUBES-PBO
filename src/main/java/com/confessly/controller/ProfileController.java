@@ -5,7 +5,6 @@ import com.confessly.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -25,14 +24,5 @@ public class ProfileController {
             return ResponseEntity.ok(updatedUser);
         }
         return ResponseEntity.badRequest().body("Username is already taken or user not found");
-    }
-
-    @PutMapping("/picture")
-    public ResponseEntity<?> updateProfilePicture(@RequestParam int userId, @RequestParam("file") MultipartFile file) {
-        User updatedUser = profileService.updateProfilePicture(userId, file);
-        if (updatedUser != null) {
-            return ResponseEntity.ok(updatedUser);
-        }
-        return ResponseEntity.badRequest().body("Failed to update profile picture");
     }
 } 

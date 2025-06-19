@@ -1600,7 +1600,7 @@
                             return `
                                 <div class="comment" data-comment-id="${c.id}">
                                     <div class="comment-header">
-                                        <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
+                                        <span class="comment-user">@anonymous</span>
                                         <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
                                     </div>
                                     <div class="comment-text">${c.isi || c.content}</div>
@@ -1959,7 +1959,7 @@
                                     return `
                                         <div class="comment" data-comment-id="${c.id}">
                                             <div class="comment-header">
-                                                <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
+                                                <span class="comment-user">@anonymous</span>
                                                 <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
                                             </div>
                                             <div class="comment-text">${c.isi || c.content}</div>
@@ -2136,7 +2136,7 @@
                                 return `
                                     <div class="comment" data-comment-id="${c.id}">
                                         <div class="comment-header">
-                                            <span class="comment-user">@${c.pengirim?.username || 'anonymous'}</span>
+                                            <span class="comment-user">@anonymous</span>
                                             <span class="comment-time">${formatTime(c.timestamp || c.createdAt || new Date())}</span>
                                         </div>
                                         <div class="comment-text">${c.isi || c.content}</div>

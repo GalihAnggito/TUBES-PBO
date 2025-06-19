@@ -104,8 +104,7 @@ public class MenfessController {
                 response.put("comment", savedKomentar);
                 response.put("user", Map.of(
                     "id", user.getId(),
-                    "username", user.getUsername(),
-                    "profilePicture", user.getProfilePicture()
+                    "username", "anonymous"
                 ));
                 return ResponseEntity.ok(response);
             }

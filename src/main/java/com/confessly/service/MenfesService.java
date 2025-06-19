@@ -7,8 +7,6 @@ import com.confessly.repository.MenfesRepository;
 import com.confessly.repository.UserRepository;
 import com.confessly.repository.KomentarRepository;
 import com.confessly.exception.ResourceNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class MenfesService implements MentosService {
-    private static final Logger logger = LoggerFactory.getLogger(MenfesService.class);
+    
     private final MenfesRepository menfesRepository;
     private final UserRepository userRepository;
     private final KomentarRepository komentarRepository;
