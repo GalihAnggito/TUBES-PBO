@@ -121,4 +121,8 @@ public class Komentar extends Postingan {
                 .map(User::getId)
                 .collect(Collectors.toList());
     }
+
+    public String getAnonymousUsername() {
+        return "anonymous";
+    }
 } 

@@ -30,7 +30,6 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("username", user.getUsername());
-            response.put("profilePicture", user.getProfilePicture());
             response.put("role", user.getRole().getRoleName());
             return ResponseEntity.ok(response);
         } catch (UsernameAlreadyExistsException e) {
@@ -47,7 +46,6 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("id", user.getId());
             response.put("username", user.getUsername());
-            response.put("profilePicture", user.getProfilePicture());
             response.put("role", user.getRole().getRoleName());
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
